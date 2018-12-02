@@ -4,3 +4,5 @@ https://github.com/dbamman/characterRelations for reference
 libri riccardo: fino a white fang compreso
 libri gabri: da white fang escluso a the jungle escluso
 libri artu: da the jungle compreso fino alla fine
+rinominare i libri con il titolo (camelback, iniziale maiuscola)
+https://www.gutenberg.org/

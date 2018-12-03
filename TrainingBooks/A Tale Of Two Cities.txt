@@ -43,7 +43,7 @@ By Charles Dickens
 CONTENTS
 
 
-     Book the First--Recalled to Life
+     relationExtraction.Book the First--Recalled to Life
 
      Chapter I      The Period
      Chapter II     The Mail
@@ -53,7 +53,7 @@ CONTENTS
      Chapter VI     The Shoemaker
 
 
-     Book the Second--the Golden Thread
+     relationExtraction.Book the Second--the Golden Thread
 
      Chapter I      Five Years Later
      Chapter II     A Sight
@@ -81,7 +81,7 @@ CONTENTS
      Chapter XXIV   Drawn to the Loadstone Rock
 
 
-     Book the Third--the Track of a Storm
+     relationExtraction.Book the Third--the Track of a Storm
 
      Chapter I      In Secret
      Chapter II     The Grindstone
@@ -103,7 +103,7 @@ CONTENTS
 
 
 
-Book the First--Recalled to Life
+relationExtraction.Book the First--Recalled to Life
 
 
 
@@ -2075,7 +2075,7 @@ The end of the first book.
 
 
 
-Book the Second--the Golden Thread
+relationExtraction.Book the Second--the Golden Thread
 
 
 
@@ -10292,7 +10292,7 @@ The end of the second book.
 
 
 
-Book the Third--the Track of a Storm
+relationExtraction.Book the Third--the Track of a Storm
 
 
 

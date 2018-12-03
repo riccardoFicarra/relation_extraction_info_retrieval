@@ -3627,7 +3627,7 @@ downstairs.
 Oliver dozed off again, soon after this; when he awoke, it was nearly
 twelve o'clock.  The old lady tenderly bade him good-night shortly
 afterwards, and left him in charge of a fat old woman who had just
-come:  bringing with her, in a little bundle, a small Prayer Book and a
+come:  bringing with her, in a little bundle, a small Prayer relationExtraction.Book and a
 large nightcap. Putting the latter on her head and the former on the
 table, the old woman, after telling Oliver that she had come to sit up
 with him, drew her chair close to the fire and went off into a series

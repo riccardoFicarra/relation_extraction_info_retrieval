@@ -36,7 +36,7 @@ by George Eliot
 
 
 
-Book One
+relationExtraction.Book One
 
 
 
@@ -6548,7 +6548,7 @@ for Eagledale without an hour's delay.
 
 
 
-Book Two
+relationExtraction.Book Two
 
 
 
@@ -9247,7 +9247,7 @@ Bartle. “She's got no conscience--no conscience; it's all run to milk.”
 
 
 
-Book Three
+relationExtraction.Book Three
 
 
 
@@ -10872,7 +10872,7 @@ danced wi' th' young squire the day he come o' age.”
 
 
 
-Book Four
+relationExtraction.Book Four
 
 
 
@@ -13791,7 +13791,7 @@ her.
 
 
 
-Book Five
+relationExtraction.Book Five
 
 
 
@@ -17817,7 +17817,7 @@ waste-paper basket and took out the little pink silk handkerchief.
 
 
 
-Book Six
+relationExtraction.Book Six
 
 
 

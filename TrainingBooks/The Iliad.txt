@@ -23836,7 +23836,7 @@ FOOTNOTES
       Vulcan, attempting to relieve her, was kicked down from Olympus in
       the manner described. The allegorists have gone mad in finding deep
       explanations for this amusing fiction. See Heraclides, 'Ponticus,"
-      p. 463 sq., ed Gale. The story is told by Homer himself in Book xv.
+      p. 463 sq., ed Gale. The story is told by Homer himself in relationExtraction.Book xv.
       The Sinthians were a race of robbers, the ancient inhabitants of
       Lemnos which island was ever after sacred to Vulcan.
 
@@ -25072,7 +25072,7 @@ _  123 Reveal'd the queen._
         And starry pole.--Thou also mad'st the night,
         Maker omnipotent, and thou the day."
 
-                                         Milton, "Paradise Lost," Book iv.
+                                         Milton, "Paradise Lost," relationExtraction.Book iv.
 
   241 --_So some tall rock._
 

@@ -1627,7 +1627,7 @@ possible I should never have gotten in any other way. During this time,
 my copy-book was the board fence, brick wall, and pavement; my pen and
 ink was a lump of chalk. With these, I learned mainly how to write. I
 then commenced and continued copying the Italics in Webster's Spelling
-Book, until I could make them all without looking on the book. By this
+relationExtraction.Book, until I could make them all without looking on the book. By this
 time, my little Master Thomas had gone to school, and learned how to
 write, and had written over a number of copy-books. These had been
 brought home, and shown to some of our near neighbors, and then laid

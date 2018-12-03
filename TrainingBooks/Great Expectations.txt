@@ -1769,7 +1769,7 @@ a O, Pip, and a J-O, Joe.”
 
 I had never heard Joe read aloud to any greater extent than this
 monosyllable, and I had observed at church last Sunday, when I
-accidentally held our Prayer-Book upside down, that it seemed to suit
+accidentally held our Prayer-relationExtraction.Book upside down, that it seemed to suit
 his convenience quite as well as if it had been all right. Wishing to
 embrace the present occasion of finding out whether in teaching Joe, I
 should have to begin quite at the beginning, I said, “Ah! But read the
@@ -2291,7 +2291,7 @@ She had not quite finished dressing, for she had but one shoe on,--the
 other was on the table near her hand,--her veil was but half arranged,
 her watch and chain were not put on, and some lace for her bosom lay
 with those trinkets, and with her handkerchief, and gloves, and
-some flowers, and a Prayer-Book all confusedly heaped about the
+some flowers, and a Prayer-relationExtraction.Book all confusedly heaped about the
 looking-glass.
 
 It was not in the first few moments that I saw all these things, though

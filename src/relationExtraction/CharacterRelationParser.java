@@ -42,6 +42,7 @@ class CharacterRelationParser {
         }
         Boolean changes = fields[2].equals("yes");
         //todo some fields are wrongly split
+        //todo some characters are referred to in multiple ways
         String char1 = fields[4].replace(".", "");
         String char2 = fields[5].replace(".", "");
         String affinity = fields[6];

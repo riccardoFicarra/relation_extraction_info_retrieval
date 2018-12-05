@@ -37,6 +37,7 @@ class CharacterRelationParser {
         boolean alreadyPresent = books.containsKey(title);
         if (!alreadyPresent) {
             book = new Book(title, author);
+            books.put(title, book);
         } else {
             book = books.get(title);
         }
@@ -50,8 +51,6 @@ class CharacterRelationParser {
         String fineCategory = fields[8];
         String detail = fields[9];
         book.addCharacterRelation(char1, char2, changes, affinity, coarseCategory, fineCategory, detail);
-        if (!alreadyPresent)
-            books.put(title, book);
     }
 
 }

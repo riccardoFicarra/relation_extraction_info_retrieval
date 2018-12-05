@@ -1,46 +1,55 @@
 package relationExtraction;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 class CharacterRelationParser {
 
-    private HashMap<String, HashMap<String, String>> characterRelations = new HashMap<>();
     private String path;
-    private HashSet<String> filenames;
 
     CharacterRelationParser(String path) {
         this.path = path;
-        try {
-            this.filenames = getFilenames(this.path);
-        } catch (FileNotFoundException fnfe){
-            System.err.println("Folder not found");
-        }
     }
 
-    HashMap<String, Book> parseCharacterRelation(){
+    HashMap<String, Book> parseCharacterRelations() {
 
         HashMap<String, Book> books = new HashMap<>();
-        for(String filename : this.filenames){
-
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(this.path));
+            //skip first line: it's the description.
+            br.lines().skip(1).forEach(line -> fillBooks(books, line));
+        } catch (FileNotFoundException e) {
+            System.err.println(e.getMessage());
         }
+
+
         return books;
     }
 
-    private static HashSet<String> getFilenames(String path) throws FileNotFoundException {   //this function retrieves the list of filenames
-        final File folder = new File(path);
-        if (!folder.exists()) {
-            throw new FileNotFoundException("Input folder does not exist");
+    private void fillBooks(HashMap<String, Book> books, String line) {
+        String[] fields = line.split("\t");
+        //do we need to keep info about annotators?
+        String title = fields[2];
+        String author = fields[3];
+        Book book;
+        boolean alreadyPresent = books.containsKey(title + "_" + author);
+        if (!alreadyPresent) {
+            book = new Book(title, author);
+        } else {
+            book = books.get(title + "_" + author);
         }
-        File[] files = folder.listFiles();   //all filenames are retrieved as an array
-        //the array is transformed into a stream, all directory names are eliminated and the filenames are extracted and put into a list
-        if (files != null)
-            return Stream.of(files).filter((File f) -> !f.isDirectory()).map(File::getName).collect(Collectors.toCollection(HashSet::new));
-        else
-            return null;
+        Boolean changes = fields[2].equals("yes");
+        String char1 = fields[4];
+        String char2 = fields[5];
+        String affinity = fields[6];
+        String coarseCategory = fields[7];
+        String fineCategory = fields[8];
+        String detail = fields[9];
+        book.addCharacterRelation(char1, char2, changes, affinity, coarseCategory, fineCategory, detail);
+        if (!alreadyPresent)
+            books.put(title + "_" + author, book);
     }
+
 }

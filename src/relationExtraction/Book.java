@@ -1,6 +1,7 @@
 package relationExtraction;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 class Book {
 
@@ -46,6 +47,11 @@ class Book {
     public String getAuthor() {
         return author;
     }
+
+    public HashSet<String> getCharacters() {
+        return new HashSet<>(characterRelations.keySet());
+    }
+
 }
 
 

@@ -8,5 +8,9 @@ public class Main {
         String path = args[0];
         CharacterRelationParser crp = new CharacterRelationParser(path);
         HashMap<String, Book> books = crp.parseCharacterRelations();
+        for (String book : books.keySet()) {
+            System.out.println("Book: " + book);
+
+        }
     }
 }

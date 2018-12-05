@@ -41,8 +41,9 @@ class CharacterRelationParser {
             book = books.get(title + "_" + author);
         }
         Boolean changes = fields[2].equals("yes");
-        String char1 = fields[4];
-        String char2 = fields[5];
+        //todo some fields are wrongly split
+        String char1 = fields[4].replace(".", "");
+        String char2 = fields[5].replace(".", "");
         String affinity = fields[6];
         String coarseCategory = fields[7];
         String fineCategory = fields[8];

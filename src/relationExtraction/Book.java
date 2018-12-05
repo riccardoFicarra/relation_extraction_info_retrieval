@@ -30,8 +30,13 @@ class Book {
         }
     }
 
-    public HashMap<String, HashMap<String, CharacterRelation>> getCharacterRelations() {
+    /*public HashMap<String, HashMap<String, CharacterRelation>> getCharacterRelations() {
         return characterRelations;
+    }
+    */
+
+    public HashMap<String, CharacterRelation> getCharacterRelations(String character) {
+        return this.characterRelations.getOrDefault(character, null);
     }
 
     public String getTitle() {

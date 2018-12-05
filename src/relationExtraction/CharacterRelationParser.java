@@ -34,11 +34,11 @@ class CharacterRelationParser {
         String title = fields[2];
         String author = fields[3];
         Book book;
-        boolean alreadyPresent = books.containsKey(title + "_" + author);
+        boolean alreadyPresent = books.containsKey(title);
         if (!alreadyPresent) {
             book = new Book(title, author);
         } else {
-            book = books.get(title + "_" + author);
+            book = books.get(title);
         }
         Boolean changes = fields[2].equals("yes");
         //todo some fields are wrongly split
@@ -51,7 +51,7 @@ class CharacterRelationParser {
         String detail = fields[9];
         book.addCharacterRelation(char1, char2, changes, affinity, coarseCategory, fineCategory, detail);
         if (!alreadyPresent)
-            books.put(title + "_" + author, book);
+            books.put(title, book);
     }
 
 }

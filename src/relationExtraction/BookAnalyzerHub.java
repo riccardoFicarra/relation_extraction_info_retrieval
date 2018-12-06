@@ -7,18 +7,12 @@ import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.HasWord;
-import edu.stanford.nlp.ling.SentenceUtils;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import edu.stanford.nlp.util.CoreMap;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +22,10 @@ import java.util.Properties;
 public class BookAnalyzerHub {
 
 
-    public static void analyzeBook(String bookName)
+    static void analyzeBook(String bookName)
     {
         //Data structures
-        ArrayList<Sentence> finalSentences = new ArrayList<Sentence>();
+        ArrayList<Sentence> finalSentences = new ArrayList<>();
         int numSentences = 0;
         String sentenceAsString, sentenceAsPOS, sentenceAsNER;
         DocumentPreprocessor dp = new DocumentPreprocessor(bookName);
@@ -51,7 +45,7 @@ public class BookAnalyzerHub {
         AbstractSequenceClassifier NERclassifier = CRFClassifier.getClassifierNoExceptions("./english.all.3class.distsim.crf.ser.gz");
 
         //Create arrayList of sentences
-        ArrayList<String> sentenceArrayList = new ArrayList<String>();
+        ArrayList<String> sentenceArrayList = new ArrayList<>();
         //For each sentence of the book...
         for (List<HasWord> sentenceAsList : dp)
         {
@@ -113,12 +107,13 @@ public class BookAnalyzerHub {
 
 
         }
+        System.out.println();
     }
 
 
-    public static String wordListToString(List<HasWord> sentence)
+    private static String wordListToString(List<HasWord> sentence)
     {
-        StringBuilder builder = new StringBuilder("");
+        StringBuilder builder = new StringBuilder();
 
         for(HasWord word:sentence)
         {
@@ -140,7 +135,7 @@ public class BookAnalyzerHub {
         List<CoreMap> sentences = doc.get(CoreAnnotations.SentencesAnnotation.class);
 
 
-        List<String> resolved = new ArrayList<String>();
+        List<String> resolved = new ArrayList<>();
 
         for (CoreMap sentence : sentences) {
 

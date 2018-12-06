@@ -1,6 +1,8 @@
 package relationExtraction;
 
-public class CharacterRelation {
+import java.io.Serializable;
+
+public class CharacterRelation implements Serializable {
     private String character1;
     private String character2;
     private boolean changes;

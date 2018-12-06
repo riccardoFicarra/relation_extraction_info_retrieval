@@ -1,10 +1,11 @@
 package relationExtraction;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-class Book {
+class Book implements Serializable {
 
     private HashMap<String, HashMap<String, CharacterRelation>> characterRelations = new HashMap<>();
     private String title;
@@ -66,6 +67,9 @@ class Book {
         this.sentences = sentences;
     }
 
+    public ArrayList<Sentence> getSentences() {
+        return sentences;
+    }
 }
 
 

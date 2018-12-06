@@ -1,19 +1,30 @@
 package relationExtraction;
 
+import java.io.Serializable;
+
 /**
  *
  * @author artur
  */
-public class Word {
-    
-    String myText, myPOS, myNER;
-    
-    public Word(String word, String POS, String NER)
-    {
-        myText = new String(word);
-        myPOS = new String(POS);
-        myNER = new String(NER);
+public class Word implements Serializable {
 
+    private String text, pos, ner;
+
+    public Word(String text, String pos, String ner) {
+        this.text = text;
+        this.pos = pos;
+        this.ner = ner;
     }
-    
+
+    public String getText() {
+        return text;
+    }
+
+    public String getPos() {
+        return pos;
+    }
+
+    public String getNer() {
+        return ner;
+    }
 }

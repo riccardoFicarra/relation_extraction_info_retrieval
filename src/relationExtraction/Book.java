@@ -1,5 +1,6 @@
 package relationExtraction;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -8,6 +9,7 @@ class Book {
     private HashMap<String, HashMap<String, CharacterRelation>> characterRelations = new HashMap<>();
     private String title;
     private String author;
+    private ArrayList<Sentence> sentences;
 
     public Book(String title, String author) {
         this.title = title;
@@ -58,6 +60,10 @@ class Book {
 
     public HashSet<String> getCharacters() {
         return new HashSet<>(characterRelations.keySet());
+    }
+
+    public void setSentences(ArrayList<Sentence> sentences) {
+        this.sentences = sentences;
     }
 
 }

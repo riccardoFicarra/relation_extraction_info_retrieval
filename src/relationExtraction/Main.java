@@ -17,9 +17,9 @@ public class Main {
         //printCharacters(books);
         //checkBookFilenames(books, booksPath);
 
-        for (String title : books.keySet()) {
+        for (Book book : books.values()) {
             try {
-                BookAnalyzerHub.analyzeBook(booksPath + title + ".txt");
+                book.setSentences(BookAnalyzerHub.analyzeBook(booksPath + book.getTitle() + ".txt"));
 
             } catch (Exception e) {
                 System.out.println(e.getMessage());

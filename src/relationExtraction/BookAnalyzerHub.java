@@ -22,7 +22,7 @@ import java.util.Properties;
 public class BookAnalyzerHub {
 
 
-    static void analyzeBook(String bookName)
+    static ArrayList<Sentence> analyzeBook(String bookName)
     {
         //Data structures
         ArrayList<Sentence> finalSentences = new ArrayList<>();
@@ -107,7 +107,7 @@ public class BookAnalyzerHub {
 
 
         }
-        System.out.println();
+        return finalSentences;
     }
 
 

@@ -14,8 +14,15 @@ class Book {
         this.author = author;
     }
 
-    //for now not dealing with duplicates (relations changing over time)
+    /**
+     * adds character relations between char1 and char2 to a symmetric nested hashmap
+     *
+     * @param char1   first character in the relation
+     * @param char2   second character in the relation
+     * @param changes if the relation changes over time or not
+     */
     void addCharacterRelation(String char1, String char2, Boolean changes, String affinity, String coarseCategory, String fineCategory, String detail) {
+        //for now not dealing with duplicates (relations changing over time)
         CharacterRelation cr = new CharacterRelation(char1, char2, changes, affinity, coarseCategory, fineCategory, detail);
         //relation graph is bidirectional, more efficient retrieval but more expensive space-wise
         addCharacterRelationToMap(char1, char2, cr);

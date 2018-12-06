@@ -1,6 +1,6 @@
 package relationExtraction;
 
-import edu.stanford.nlp.io.RuntimeIOException;
+
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -15,13 +15,13 @@ public class Main {
         CharacterRelationParser crp = new CharacterRelationParser(crFilePath);
         HashMap<String, Book> books = crp.parseCharacterRelations();
         //printCharacters(books);
-        checkBookFilenames(books, booksPath);
+        //checkBookFilenames(books, booksPath);
 
         for (String title : books.keySet()) {
             try {
                 BookAnalyzerHub.analyzeBook(booksPath + title + ".txt");
 
-            } catch (RuntimeIOException e) {
+            } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         }

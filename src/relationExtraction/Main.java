@@ -41,6 +41,7 @@ public class Main {
                     }
                     //break; //uncomment to parse only first book
                 }
+                System.out.println("Parsing complete, writing to file");
                 ObjectIO.writeBooksToFile(bookFilename, books.values());
             }
         } else {

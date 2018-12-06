@@ -18,7 +18,19 @@ public class Sentence implements Serializable {
     private String pureSentence;              //Sentence as a normal string
     private ArrayList<Word> wordList;         //Sentence as a sequence of Word objects
     private HashSet<String> appearingCharacters;          //Set containing the character names appearing in this sentence
-    
+
+    public String getPureSentence() {
+        return pureSentence;
+    }
+
+    public ArrayList<Word> getWordList() {
+        return wordList;
+    }
+
+    public HashSet<String> getAppearingCharacters() {
+        return appearingCharacters;
+    }
+
     public Sentence(String pureSentence, String sentenceAsPOS, String sentenceAsNER)
     {
 

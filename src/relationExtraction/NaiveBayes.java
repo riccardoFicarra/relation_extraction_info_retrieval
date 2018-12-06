@@ -20,22 +20,31 @@ class NaiveBayes {
     }
 
     void buildModel(HashMap<String, Book> books) {
+        DefaultDataset dataset = buildDataset(books);
+        this.nbc.buildClassifier(dataset);
+    }
+
+    private DefaultDataset buildDataset(HashMap<String, Book> books) {
         DefaultDataset dataset = new DefaultDataset();
 
         //Dataset Building
         HashMap<String, List<Sentence>> labeledSentences = new HashMap<>();
         for (Book book : books.values()) {
             HashMap<String, List<Sentence>> bookLabeledSentences = book.buildRelationSentence(relationlabel);
-            for (String relation : bookLabeledSentences.keySet()) {
-                labeledSentences.merge(relation, bookLabeledSentences.get(relation), (l1, l2) -> {
-                    List<Sentence> newList = new ArrayList<>();
-                    newList.addAll(l1);
-                    newList.addAll(l2);
-                    return newList;
-                });
-            }
+            mergeLabeledSentences(labeledSentences, bookLabeledSentences);
         }
+        return dataset;
+    }
 
+    private static void mergeLabeledSentences(HashMap<String, List<Sentence>> labeledSentences, HashMap<String, List<Sentence>> bookLabeledSentences) {
+        for (String relation : bookLabeledSentences.keySet()) {
+            labeledSentences.merge(relation, bookLabeledSentences.get(relation), (l1, l2) -> {
+                List<Sentence> newList = new ArrayList<>();
+                newList.addAll(l1);
+                newList.addAll(l2);
+                return newList;
+            });
+        }
     }
 
 }

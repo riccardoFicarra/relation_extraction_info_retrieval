@@ -73,9 +73,9 @@ class Book implements Serializable {
     /**
      * @return hashmap with relations as keys and sentences as values
      */
-    public HashMap<String, List<Sentence>> buildRelationSentence() {
+    HashMap<String, List<Sentence>> buildRelationSentence(NaiveBayes.RelationLabel relationLabel) {
         Map<String, List<Sentence>> relationSentence;
-        relationSentence = sentences.parallelStream().filter(this::containsCharacterRelation).collect(Collectors.groupingBy(this::getRelationFromSentence));
+        relationSentence = sentences.parallelStream().filter(this::containsCharacterRelation).collect(Collectors.groupingBy(s -> this.getRelationFromSentence(s, relationLabel)));
         return new HashMap<>(relationSentence);
     }
 
@@ -83,11 +83,17 @@ class Book implements Serializable {
      * @param s sentence to analyze
      * @return relation between the two characters in the sentence: for now returns the affinity.
      */
-    private String getRelationFromSentence(Sentence s) {
+    private String getRelationFromSentence(Sentence s, NaiveBayes.RelationLabel relationLabel) {
         Iterator<String> itr = s.getAppearingCharacters().iterator();
         String character1 = itr.next();
         String character2 = itr.next();
-        return characterRelations.get(character1).get(character2).getAffinity();
+        if (relationLabel == NaiveBayes.RelationLabel.affinity)
+            return characterRelations.get(character1).get(character2).getAffinity();
+        else if (relationLabel == NaiveBayes.RelationLabel.coarse)
+            return characterRelations.get(character1).get(character2).getCoarseCategory();
+        else
+            return characterRelations.get(character1).get(character2).getFineCategory();
+
     }
 
     private boolean containsCharacterRelation(Sentence s) {

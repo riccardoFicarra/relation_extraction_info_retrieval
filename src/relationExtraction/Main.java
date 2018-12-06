@@ -14,26 +14,28 @@ public class Main {
      * @param args
      * [0] -> path of character relations file
      * [1] -> path of books folder
-     * [3] -> options: p = parse, f = force overwrite, blank = read books from file
+     * [2] -> options: p = parse, f = force overwrite, b = build Naive Bayes model
+     * [3] [only with b option] label type to use in classifier. {affinity, coarse, fine}
      */
     public static void main(String[] args) {
         String crFilePath = args[0];
         String booksPath = args[1];    //must end with / or \ (win or unix)
-        String booksOpt = args.length == 3 ? args[2] : "";
+        String options = args.length == 3 ? args[2] : "";
+        String labelType = args.length == 4 ? args[3] : null;
         String bookFilename = "books.dat";
-        //printCharacters(books);
-        //checkBookFilenames(books, booksPath);
-        HashMap<String, Book> books;
-        if (booksOpt.contains("p")) {
+
+        //PARSING FILES
+        HashMap<String, Book> books = null;
+        if (options.contains("p")) {
             File booksFile = new File(bookFilename);
             boolean bookExists = booksFile.exists();
             String choice = "";
-            if (bookExists && !booksOpt.contains("f")) {
+            if (bookExists && !options.contains("f")) {
                 System.err.println("CAUTION: DO YOU WANT TO OVERWRITE THE FILE? y/n");
                 Scanner scanner = new Scanner(System.in);
                 choice = scanner.nextLine();
             }
-            if (!bookExists || booksOpt.contains("f") || choice.equals("y")) {
+            if (!bookExists || options.contains("f") || choice.equals("y")) {
                 CharacterRelationParser crp = new CharacterRelationParser(crFilePath);
                 books = crp.parseCharacterRelations();
                 for (Book book : books.values()) {
@@ -50,6 +52,11 @@ public class Main {
         } else {
             books = ObjectIO.readBooksFromFile(bookFilename);
             printCharacters(books);
+        }
+        // NAIVE BAYES MODEL
+        if (options.contains("b")) {
+            NaiveBayes nbm = new NaiveBayes(true, true, true, labelType);
+            nbm.buildModel(books);
         }
     }
 

@@ -11,7 +11,10 @@ import java.util.stream.Collectors;
 
 public class Main {
     /**
-     * @param args in options: p = parse, f = force overwrite
+     * @param args
+     * [0] -> path of character relations file
+     * [1] -> path of books folder
+     * [3] -> options: p = parse, f = force overwrite, blank = read books from file
      */
     public static void main(String[] args) {
         String crFilePath = args[0];

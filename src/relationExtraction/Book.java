@@ -17,6 +17,7 @@ class Book {
     //for now not dealing with duplicates (relations changing over time)
     void addCharacterRelation(String char1, String char2, Boolean changes, String affinity, String coarseCategory, String fineCategory, String detail) {
         CharacterRelation cr = new CharacterRelation(char1, char2, changes, affinity, coarseCategory, fineCategory, detail);
+        //relation graph is bidirectional, more efficient retrieval but more expensive space-wise
         addCharacterRelationToMap(char1, char2, cr);
         addCharacterRelationToMap(char2, char1, cr);
     }

@@ -1,9 +1,8 @@
 package relationExtraction;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 class Book implements Serializable {
 
@@ -69,6 +68,38 @@ class Book implements Serializable {
 
     public ArrayList<Sentence> getSentences() {
         return sentences;
+    }
+
+    /**
+     * @return hashmap with relations as keys and sentences as values
+     */
+    public HashMap<String, List<Sentence>> buildRelationSentence() {
+        Map<String, List<Sentence>> relationSentence;
+        relationSentence = sentences.parallelStream().filter(this::containsCharacterRelation).collect(Collectors.groupingBy(this::getRelationFromSentence));
+        return new HashMap<>(relationSentence);
+    }
+
+    /**
+     * @param s sentence to analyze
+     * @return relation between the two characters in the sentence: for now returns the affinity.
+     */
+    private String getRelationFromSentence(Sentence s) {
+        Iterator<String> itr = s.getAppearingCharacters().iterator();
+        String character1 = itr.next();
+        String character2 = itr.next();
+        return characterRelations.get(character1).get(character2).getAffinity();
+    }
+
+    private boolean containsCharacterRelation(Sentence s) {
+        if (s.getAppearingCharacters().size() != 2)
+            return false;
+        Iterator<String> itr = s.getAppearingCharacters().iterator();
+        String character1 = itr.next();
+        String character2 = itr.next();
+        if (characterRelations.containsKey(character1)) {
+            return characterRelations.get(character1).containsKey(character2);
+        }
+        return false;
     }
 }
 

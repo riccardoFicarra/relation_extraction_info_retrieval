@@ -27,14 +27,14 @@ public class Sentence implements Serializable {
         return wordList;
     }
 
-    public HashSet<String> getAppearingCharacters() {
+    HashSet<String> getAppearingCharacters() {
         return appearingCharacters;
     }
 
     public Sentence(String pureSentence, String sentenceAsPOS, String sentenceAsNER)
     {
 
-        this.appearingCharacters = new HashSet();
+        this.appearingCharacters = new HashSet<>();
         //Copying original sentence
         this.pureSentence = pureSentence;
         //Saving list of words

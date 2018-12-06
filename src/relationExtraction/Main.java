@@ -33,7 +33,7 @@ public class Main {
             if (!bookExists || booksOpt.contains("f") || choice.equals("y")) {
                 CharacterRelationParser crp = new CharacterRelationParser(crFilePath);
                 books = crp.parseCharacterRelations();
-                int b = 0;
+                int b = 1;
                 for (Book book : books.values()) {
                     try {
                         System.out.println("Parsing book " + b + " of " + books.size());

@@ -9,8 +9,12 @@ public class Main {
         CharacterRelationParser crp = new CharacterRelationParser(path);
         HashMap<String, Book> books = crp.parseCharacterRelations();
         for (String book : books.keySet()) {
-            System.out.println("Book: " + book);
+            //System.out.println("Book: " + book);
 
         }
+
+        // HOW TO CALL BOOK ANALYZER
+        BookAnalyzerHub.analyzeBook("./TrainingBooks/Hamlet.txt");
+        System.out.print("");
     }
 }

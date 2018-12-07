@@ -1,10 +1,11 @@
 package relationExtraction;
 
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -40,9 +41,11 @@ public class Main {
                 books = crp.parseCharacterRelations();
                 int skip = books.size() / nfile + 1;
                 for (int j = 0; j < nfile; j++) {
-                    books.values().stream().skip(j).limit(j * skip).forEach(b -> addSentences(b, booksPath));
+                    Collection<Book> bookSlice = books.values().stream().skip(j).limit((j + 1) * skip).collect(Collectors.toCollection(ArrayList::new));
+                    //bookSlice.forEach(b -> addSentences(b, booksPath));
+                    bookSlice.forEach(b -> System.out.println(b.getTitle()));
                     System.out.println("Parsing complete, writing to file");
-                    ObjectIO.writeBooksToFile(bookOutFile + j + ".dat", books.values());
+                    ObjectIO.writeBooksToFile(bookOutFile + j + ".dat", bookSlice);
                 }
 
             }

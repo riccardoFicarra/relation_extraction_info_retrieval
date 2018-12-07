@@ -4,8 +4,6 @@ package relationExtraction;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -24,14 +22,15 @@ public class Main {
         String options = args.length >= 3 ? args[2] : "";
         String labelType = args.length == 4 ? args[3] : null;
         String processedBooksPath = "processedBooks/";
-        String bookOutFile = "booksOnly2";
-        String bookInFile = "booksOnly2";
+        String bookOutFile = "booksJson";
+        String bookInFile = "booksJson";
         int nfile = 3;
         //PARSING FILES
         HashMap<String, Book> books = null;
         if (options.contains("p")) {
-            File booksFile = new File(processedBooksPath + bookOutFile + "1.dat");
-            boolean bookExists = booksFile.exists();
+            File booksFile = new File(processedBooksPath);
+            File[] listfiles = booksFile.listFiles();
+            boolean bookExists = listfiles != null && listfiles.length > 0;
             String choice = "";
             if (bookExists && !options.contains("f")) {
                 System.err.println("CAUTION: DO YOU WANT TO OVERWRITE THE FILE? y/n");
@@ -41,23 +40,22 @@ public class Main {
             if (!bookExists || options.contains("f") || choice.equals("y")) {
                 CharacterRelationParser crp = new CharacterRelationParser(crFilePath);
                 books = crp.parseCharacterRelations();
-                int skip = books.size() / nfile + 1;
-                for (int j = 0; j < nfile; j++) {
-                    //Collection<Book> bookSlice = books.values().stream().skip(j).limit(skip).collect(Collectors.toCollection(ArrayList::new));
-                    Collection<Book> bookSlice = books.values().stream().skip(j * 3).limit(2).collect(Collectors.toCollection(ArrayList::new));
+                /*books.values().forEach(b -> {
+                    System.out.println(b.getTitle());
+                    ObjectIO.writeBookToFile(processedBooksPath,b);});*/
 
-                    bookSlice.forEach(b -> addSentences(b, booksPath));
-                    //bookSlice.forEach(b -> System.out.println(b.getTitle()));
-                    System.out.println("Parsing complete, writing to file");
-                    ObjectIO.writeBooksToFile(processedBooksPath + bookOutFile + j + ".dat", bookSlice);
-                }
+                books.values().stream().limit(1).forEach(b -> {
+                    addSentences(b, booksPath);
+                    ObjectIO.writeBookToFile(processedBooksPath, b);
+                });
+
 
             }
         } else {
-            books = new HashMap<>();
-            for (int j = 0; j < nfile; j++) {
-                books.putAll(ObjectIO.readBooksFromFile(processedBooksPath + bookInFile + j + ".dat"));
-                System.out.println("Finished reading file " + j);
+            try {
+                books = ObjectIO.readBooksFromFile(processedBooksPath);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             printCharacters(books);
         }

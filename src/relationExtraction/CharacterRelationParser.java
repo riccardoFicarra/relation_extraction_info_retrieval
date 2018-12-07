@@ -31,7 +31,7 @@ class CharacterRelationParser {
     private void fillBooks(HashMap<String, Book> books, String line) {
         String[] fields = line.split("\t");
         //do we need to keep info about annotators?
-        String title = fields[2];
+        String title = fields[2].replace(":", "");
         String author = fields[3];
         Book book;
         boolean alreadyPresent = books.containsKey(title);

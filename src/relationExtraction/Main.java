@@ -57,7 +57,7 @@ public class Main {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            printCharacters(books);
+            //printCharacters(books);
         }
         // NAIVE BAYES MODEL
         if (options.contains("b")) {

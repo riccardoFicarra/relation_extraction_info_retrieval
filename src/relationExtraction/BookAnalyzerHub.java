@@ -103,7 +103,8 @@ public class BookAnalyzerHub {
             sentenceAsPOS = POStagger.tagString(currentFinalSentence);
             //Saving into the onject
             Sentence s = new Sentence(sentenceArrayList.get(i), sentenceAsPOS, sentenceAsNER);
-            finalSentences.add(s);
+            if (s.getAppearingCharacters().size() >= 2)
+                finalSentences.add(s);
 
 
         }

@@ -24,6 +24,7 @@ public class Main {
         String options = args.length == 3 ? args[2] : "";
         String labelType = args.length == 4 ? args[3] : null;
         String bookOutFile = "books";
+        String bookInFile = "booksOnly1";
         int nfile = 3;
         //PARSING FILES
         HashMap<String, Book> books = null;
@@ -52,7 +53,7 @@ public class Main {
         } else {
             books = new HashMap<>();
             for (int j = 0; j < nfile; j++) {
-                books.putAll(ObjectIO.readBooksFromFile(bookOutFile + j + ".dat"));
+                books.putAll(ObjectIO.readBooksFromFile(bookInFile + j + ".dat"));
             }
             printCharacters(books);
         }

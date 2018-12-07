@@ -24,6 +24,7 @@ public class Main {
         String options = args.length == 3 ? args[2] : "";
         String labelType = args.length == 4 ? args[3] : null;
         String bookOutFile = "books";
+        String bookInFile = "booksOnly1"; //this should be the same as bookOutFile, splitted for debugging
         int nfile = 3;
         //PARSING FILES
         HashMap<String, Book> books = null;
@@ -41,9 +42,9 @@ public class Main {
                 books = crp.parseCharacterRelations();
                 int skip = books.size() / nfile + 1;
                 for (int j = 0; j < nfile; j++) {
-                    Collection<Book> bookSlice = books.values().stream().skip(j).limit((j + 1) * skip).collect(Collectors.toCollection(ArrayList::new));
-                    bookSlice.forEach(b -> addSentences(b, booksPath));
-                    //bookSlice.forEach(b -> System.out.println(b.getTitle()));
+                    Collection<Book> bookSlice = books.values().stream().skip(j * 3).limit(skip).collect(Collectors.toCollection(ArrayList::new));
+                    //bookSlice.forEach(b -> addSentences(b, booksPath));
+                    bookSlice.forEach(b -> System.out.println(b.getTitle()));
                     System.out.println("Parsing complete, writing to file");
                     ObjectIO.writeBooksToFile(bookOutFile + j + ".dat", bookSlice);
                 }
@@ -52,7 +53,8 @@ public class Main {
         } else {
             books = new HashMap<>();
             for (int j = 0; j < nfile; j++) {
-                books.putAll(ObjectIO.readBooksFromFile(bookOutFile + j + ".dat"));
+                books.putAll(ObjectIO.readBooksFromFile(bookInFile + j + ".dat"));
+                System.out.println("Finished reading file " + j);
             }
             printCharacters(books);
         }

@@ -28,12 +28,13 @@ class ObjectIO {
             fin = new FileInputStream(filepath);
             ois = new ObjectInputStream(fin);
             try {
-                while (true) {
+                while (fin.available() != 0) {
                     //this cycle exits when all entries in the file are read via exception
                     book = (Book) ois.readObject();
                     books.put(book.getTitle(), book);
                 }
-            } catch (EOFException e) {
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
         } catch (Exception ex) {

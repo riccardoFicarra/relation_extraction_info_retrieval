@@ -42,7 +42,7 @@ public class Main {
                 books = crp.parseCharacterRelations();
                 int skip = books.size() / nfile + 1;
                 for (int j = 0; j < nfile; j++) {
-                    Collection<Book> bookSlice = books.values().stream().skip(j).limit((j + 1) * skip).collect(Collectors.toCollection(ArrayList::new));
+                    Collection<Book> bookSlice = books.values().stream().skip(j).limit(skip).collect(Collectors.toCollection(ArrayList::new));
                     //bookSlice.forEach(b -> addSentences(b, booksPath));
                     bookSlice.forEach(b -> System.out.println(b.getTitle()));
                     System.out.println("Parsing complete, writing to file");

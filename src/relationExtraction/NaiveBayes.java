@@ -1,8 +1,6 @@
 package relationExtraction;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 class NaiveBayes {
 
@@ -19,14 +17,15 @@ class NaiveBayes {
     }
 
     void buildModel(HashMap<String, Book> books) {
-        HashMap<String, List<Sentence>> dataset = buildSentenceDataset(books);
+
 
     }
 
-    /**
+    /*
      * @param books
      * @return outer key is label, value is the list of sentences with that value
      */
+   /*
     private HashMap<String, List<Sentence>> buildSentenceDataset(HashMap<String, Book> books) {
 
         //Dataset Building
@@ -36,16 +35,36 @@ class NaiveBayes {
             mergeLabeledSentences(labeledSentences, bookLabeledSentences);
         }
         return labeledSentences;
-    }
+    }*/
 
-    private HashMap<String, HashMap<String, Double>> train(HashMap<String, List<List<String>>> cleanedLabeledSentences) {
+    private HashMap<String, HashMap<String, Double>> train(HashMap<String, Book> books) {
         HashMap<String, HashMap<String, Double>> probabilities = new HashMap<>();
-        for (String label : cleanedLabeledSentences.keySet()) {
-
+        HashMap<String, Integer> count = new HashMap<>();
+        for (Book book : books.values()) {
+            for (Sentence sentence : book.getSentences()) {
+                String label = book.getRelationFromSentence(sentence, relationlabel);
+                sentence.getWordList().stream()
+                        .filter(Word::isStopword)
+                        .map(Word::getText/*additional processing here*/)
+                        .forEach(w -> addToModel(probabilities, count, w, label));
+            }
         }
         return probabilities;
     }
 
+    private static void addToModel(HashMap<String, HashMap<String, Double>> probabilities, HashMap<String, Integer> count, String w, String label) {
+        if (!probabilities.containsKey(label) || !count.containsKey(label)) {
+            probabilities.put(label, new HashMap<>());
+            count.put(label, 0);
+        }
+        HashMap<String, Double> labelEntry = probabilities.get(label);
+        if (labelEntry.containsKey(w)) {
+            labelEntry.put(w, labelEntry.get(w) + 1);
+        } else
+            labelEntry.put(w, 1.0);
+        count.put(label, count.get(label) + 1);
+    }
+/*
 
     private static void mergeLabeledSentences(HashMap<String, List<Sentence>> labeledSentences, HashMap<String, List<Sentence>> bookLabeledSentences) {
         for (String relation : bookLabeledSentences.keySet()) {
@@ -57,5 +76,6 @@ class NaiveBayes {
             });
         }
     }
+    */
 
 }

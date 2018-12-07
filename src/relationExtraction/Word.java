@@ -27,4 +27,8 @@ public class Word implements Serializable {
     public String getNer() {
         return ner;
     }
+
+    boolean isStopword() {
+        return true;
+    } //placeholder for stopword flag
 }

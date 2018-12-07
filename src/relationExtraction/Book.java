@@ -1,8 +1,10 @@
 package relationExtraction;
 
 import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 
 class Book implements Serializable {
 
@@ -70,20 +72,21 @@ class Book implements Serializable {
         return sentences;
     }
 
-    /**
+    /*
      * @return hashmap with relations as keys and sentences as values
      */
+    /*
     HashMap<String, List<Sentence>> buildRelationSentence(NaiveBayes.RelationLabel relationLabel) {
         Map<String, List<Sentence>> relationSentence;
         relationSentence = sentences.parallelStream().filter(this::containsCharacterRelation).collect(Collectors.groupingBy(s -> this.getRelationFromSentence(s, relationLabel)));
         return new HashMap<>(relationSentence);
     }
-
+*/
     /**
      * @param s sentence to analyze
      * @return relation between the two characters in the sentence: for now returns the affinity.
      */
-    private String getRelationFromSentence(Sentence s, NaiveBayes.RelationLabel relationLabel) {
+    String getRelationFromSentence(Sentence s, NaiveBayes.RelationLabel relationLabel) {
         Iterator<String> itr = s.getAppearingCharacters().iterator();
         String character1 = itr.next();
         String character2 = itr.next();

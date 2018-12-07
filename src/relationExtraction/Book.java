@@ -118,6 +118,13 @@ class Book implements Serializable {
         }
     }
 
+    /**
+     * @param sentences This function computes all possible pairs between characters recognized by the NER in the book
+     *                  and checks if the character names are contained in the characters obtained by the character relations file.
+     *                  If the check for a pair of characters is positive and they have a relation between themselves,
+     *                  the character name from the book is substituted by the one from the character relations file.
+     *                  An hashmap avoids repeating useless work for already found couples.
+     */
     private void recomputeCharacters(ArrayList<Sentence> sentences) {
         HashMap<String, String> alreadyFound = new HashMap<>();
         for (Sentence sentence : sentences) {

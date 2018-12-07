@@ -55,7 +55,7 @@ public class Main {
         }
         // NAIVE BAYES MODEL
         if (options.contains("b")) {
-            NaiveBayes nbm = new NaiveBayes(true, true, true, labelType);
+            NaiveBayes nbm = new NaiveBayes(labelType);
             nbm.buildModel(books);
         }
     }

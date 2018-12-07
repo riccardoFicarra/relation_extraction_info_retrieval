@@ -1,31 +1,33 @@
 package relationExtraction;
 
-import net.sf.javaml.classification.bayes.NaiveBayesClassifier;
-import net.sf.javaml.core.DefaultDataset;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 class NaiveBayes {
 
-    private NaiveBayesClassifier nbc;
     private RelationLabel relationlabel;
-
+    /**
+     * The actual model:
+     * Outer key is the label, inner key is the word, value is the probability (multinomial)
+     */
+    private HashMap<String, HashMap<String, Double>> probabilities;
     enum RelationLabel {affinity, coarse, fine}
     //lap: add 1 smoothing; log: use logs to avoid underflow; sparse: used dataset is sparse
-    NaiveBayes(boolean laplace, boolean log, boolean sparse, String relationlabel) {
-        this.nbc = new NaiveBayesClassifier(true, true, true);
+    NaiveBayes(String relationlabel) {
         this.relationlabel = RelationLabel.valueOf(relationlabel);
     }
 
     void buildModel(HashMap<String, Book> books) {
-        DefaultDataset dataset = buildDataset(books);
-        this.nbc.buildClassifier(dataset);
+        HashMap<String, List<Sentence>> dataset = buildSentenceDataset(books);
+
     }
 
-    private DefaultDataset buildDataset(HashMap<String, Book> books) {
-        DefaultDataset dataset = new DefaultDataset();
+    /**
+     * @param books
+     * @return outer key is label, value is the list of sentences with that value
+     */
+    private HashMap<String, List<Sentence>> buildSentenceDataset(HashMap<String, Book> books) {
 
         //Dataset Building
         HashMap<String, List<Sentence>> labeledSentences = new HashMap<>();
@@ -33,8 +35,17 @@ class NaiveBayes {
             HashMap<String, List<Sentence>> bookLabeledSentences = book.buildRelationSentence(relationlabel);
             mergeLabeledSentences(labeledSentences, bookLabeledSentences);
         }
-        return dataset;
+        return labeledSentences;
     }
+
+    private HashMap<String, HashMap<String, Double>> train(HashMap<String, List<List<String>>> cleanedLabeledSentences) {
+        HashMap<String, HashMap<String, Double>> probabilities = new HashMap<>();
+        for (String label : cleanedLabeledSentences.keySet()) {
+
+        }
+        return probabilities;
+    }
+
 
     private static void mergeLabeledSentences(HashMap<String, List<Sentence>> labeledSentences, HashMap<String, List<Sentence>> bookLabeledSentences) {
         for (String relation : bookLabeledSentences.keySet()) {

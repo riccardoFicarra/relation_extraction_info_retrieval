@@ -22,12 +22,12 @@ public class Main {
         String booksPath = args[1];    //must end with / or \ (win or unix)
         String options = args.length == 3 ? args[2] : "";
         String labelType = args.length == 4 ? args[3] : null;
-        String bookFilename = "books.dat";
-
+        String bookOutFile = "books";
+        int nfile = 3;
         //PARSING FILES
         HashMap<String, Book> books = null;
         if (options.contains("p")) {
-            File booksFile = new File(bookFilename);
+            File booksFile = new File(bookOutFile + "1.dat");
             boolean bookExists = booksFile.exists();
             String choice = "";
             if (bookExists && !options.contains("f")) {
@@ -38,25 +38,33 @@ public class Main {
             if (!bookExists || options.contains("f") || choice.equals("y")) {
                 CharacterRelationParser crp = new CharacterRelationParser(crFilePath);
                 books = crp.parseCharacterRelations();
-                for (Book book : books.values()) {
-                    try {
-                        book.setSentences(BookAnalyzerHub.analyzeBook(booksPath + book.getTitle() + ".txt"));
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                    }
-                    //break; //uncomment to parse only first book
+                int skip = books.size() / nfile + 1;
+                for (int j = 0; j < nfile; j++) {
+                    books.values().stream().skip(j).limit(j * skip).forEach(b -> addSentences(b, booksPath));
+                    System.out.println("Parsing complete, writing to file");
+                    ObjectIO.writeBooksToFile(bookOutFile + j + ".dat", books.values());
                 }
-                System.out.println("Parsing complete, writing to file");
-                ObjectIO.writeBooksToFile(bookFilename, books.values());
+
             }
         } else {
-            books = ObjectIO.readBooksFromFile(bookFilename);
+            books = new HashMap<>();
+            for (int j = 0; j < nfile; j++) {
+                books.putAll(ObjectIO.readBooksFromFile(bookOutFile + j + ".dat"));
+            }
             printCharacters(books);
         }
         // NAIVE BAYES MODEL
         if (options.contains("b")) {
             NaiveBayes nbm = new NaiveBayes(labelType);
             nbm.buildModel(books);
+        }
+    }
+
+    private static void addSentences(Book book, String booksPath) {
+        try {
+            book.setSentences(BookAnalyzerHub.analyzeBook(booksPath + book.getTitle() + ".txt"));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 

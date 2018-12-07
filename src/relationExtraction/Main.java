@@ -54,6 +54,7 @@ public class Main {
             books = new HashMap<>();
             for (int j = 0; j < nfile; j++) {
                 books.putAll(ObjectIO.readBooksFromFile(bookInFile + j + ".dat"));
+                System.out.println("Finished reading file " + j);
             }
             printCharacters(books);
         }

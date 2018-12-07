@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
         String crFilePath = args[0];
         String booksPath = args[1];    //must end with / or \ (win or unix)
-        String options = args.length == 3 ? args[2] : "";
+        String options = args.length >= 3 ? args[2] : "";
         String labelType = args.length == 4 ? args[3] : null;
         String processedBooksPath = "processedBooks/";
         String bookOutFile = "booksOnly2";

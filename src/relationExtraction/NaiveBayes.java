@@ -16,10 +16,6 @@ class NaiveBayes {
         this.relationlabel = RelationLabel.valueOf(relationlabel);
     }
 
-    void buildModel(HashMap<String, Book> books) {
-
-
-    }
 
     /*
      * @param books
@@ -37,19 +33,29 @@ class NaiveBayes {
         return labeledSentences;
     }*/
 
-    private HashMap<String, HashMap<String, Double>> train(HashMap<String, Book> books) {
+    void buildModel(HashMap<String, Book> books) {
         HashMap<String, HashMap<String, Double>> probabilities = new HashMap<>();
         HashMap<String, Integer> count = new HashMap<>();
         for (Book book : books.values()) {
             for (Sentence sentence : book.getSentences()) {
-                String label = book.getRelationFromSentence(sentence, relationlabel);
-                sentence.getWordList().stream()
-                        .filter(Word::isStopword)
-                        .map(Word::getText/*additional processing here*/)
-                        .forEach(w -> addToModel(probabilities, count, w, label));
+                if (book.containsCharacterRelation(sentence)) {
+                    String label = book.getRelationFromSentence(sentence, relationlabel);
+                    sentence.getWordList().stream()
+                            .filter(Word::isStopword)
+                            .map(Word::getText/*additional processing here*/)
+                            .forEach(w -> addToModel(probabilities, count, w, label));
+                }
             }
         }
-        return probabilities;
+        for (String label : probabilities.keySet()) {
+            HashMap<String, Double> labelEntry = probabilities.get(label);
+            double dividend = count.get(label);
+            for (String word : labelEntry.keySet()) {
+                //ADD ONE SMOOTHING HERE
+                labelEntry.put(word, (labelEntry.get(word) + 1) / (dividend + labelEntry.size()));
+            }
+        }
+        this.probabilities = probabilities;
     }
 
     private static void addToModel(HashMap<String, HashMap<String, Double>> probabilities, HashMap<String, Integer> count, String w, String label) {

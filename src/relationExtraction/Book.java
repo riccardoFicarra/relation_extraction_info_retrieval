@@ -99,7 +99,7 @@ class Book implements Serializable {
 
     }
 
-    private boolean containsCharacterRelation(Sentence s) {
+    boolean containsCharacterRelation(Sentence s) {
         if (s.getAppearingCharacters().size() != 2)
             return false;
         Iterator<String> itr = s.getAppearingCharacters().iterator();

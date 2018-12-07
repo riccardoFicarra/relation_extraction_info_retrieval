@@ -17,12 +17,13 @@ public class Main {
         String crFilePath = args[0];
         String booksPath = args[1];    //must end with / or \ (win or unix)
         String booksOpt = args.length == 3 ? args[2] : "";
-        String bookFilename = "books.dat";
+        String bookOutFile = "books";
+        int nfile = 3;
         //printCharacters(books);
         //checkBookFilenames(books, booksPath);
         HashMap<String, Book> books;
         if (booksOpt.contains("p")) {
-            File booksFile = new File(bookFilename);
+            File booksFile = new File(bookOutFile + "1.dat");
             boolean bookExists = booksFile.exists();
             String choice = "";
             if (bookExists && !booksOpt.contains("f")) {
@@ -33,23 +34,28 @@ public class Main {
             if (!bookExists || booksOpt.contains("f") || choice.equals("y")) {
                 CharacterRelationParser crp = new CharacterRelationParser(crFilePath);
                 books = crp.parseCharacterRelations();
-                int b = 1;
-                for (Book book : books.values()) {
-                    try {
-                        System.out.println("Parsing book " + b + " of " + books.size());
-                        book.setSentences(BookAnalyzerHub.analyzeBook(booksPath + book.getTitle() + ".txt"));
-                        b++;
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                    }
-                    //break; //uncomment to parse only first book
+                int skip = books.size() / nfile + 1;
+                for (int j = 0; j < nfile; j++) {
+                    books.values().stream().skip(j).limit(j * skip).forEach(b -> addSentences(b, booksPath));
+                    System.out.println("Parsing complete, writing to file");
+                    ObjectIO.writeBooksToFile(bookOutFile + j + ".dat", books.values());
                 }
-                System.out.println("Parsing complete, writing to file");
-                ObjectIO.writeBooksToFile(bookFilename, books.values());
+
             }
         } else {
-            books = ObjectIO.readBooksFromFile(bookFilename);
+            books = new HashMap<>();
+            for (int j = 0; j < nfile; j++) {
+                books.putAll(ObjectIO.readBooksFromFile(bookOutFile + j + ".dat"));
+            }
             printCharacters(books);
+        }
+    }
+
+    private static void addSentences(Book book, String booksPath) {
+        try {
+            book.setSentences(BookAnalyzerHub.analyzeBook(booksPath + book.getTitle() + ".txt"));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 

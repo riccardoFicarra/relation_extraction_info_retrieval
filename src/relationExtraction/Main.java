@@ -23,13 +23,14 @@ public class Main {
         String booksPath = args[1];    //must end with / or \ (win or unix)
         String options = args.length == 3 ? args[2] : "";
         String labelType = args.length == 4 ? args[3] : null;
-        String bookOutFile = "books";
-        String bookInFile = "booksOnly1";
+        String processedBooksPath = "processedBooks/";
+        String bookOutFile = "booksOnly2";
+        String bookInFile = "booksOnly2";
         int nfile = 3;
         //PARSING FILES
         HashMap<String, Book> books = null;
         if (options.contains("p")) {
-            File booksFile = new File(bookOutFile + "1.dat");
+            File booksFile = new File(processedBooksPath + bookOutFile + "1.dat");
             boolean bookExists = booksFile.exists();
             String choice = "";
             if (bookExists && !options.contains("f")) {
@@ -42,18 +43,20 @@ public class Main {
                 books = crp.parseCharacterRelations();
                 int skip = books.size() / nfile + 1;
                 for (int j = 0; j < nfile; j++) {
-                    Collection<Book> bookSlice = books.values().stream().skip(j).limit(skip).collect(Collectors.toCollection(ArrayList::new));
-                    //bookSlice.forEach(b -> addSentences(b, booksPath));
-                    bookSlice.forEach(b -> System.out.println(b.getTitle()));
+                    //Collection<Book> bookSlice = books.values().stream().skip(j).limit(skip).collect(Collectors.toCollection(ArrayList::new));
+                    Collection<Book> bookSlice = books.values().stream().skip(j * 3).limit(2).collect(Collectors.toCollection(ArrayList::new));
+
+                    bookSlice.forEach(b -> addSentences(b, booksPath));
+                    //bookSlice.forEach(b -> System.out.println(b.getTitle()));
                     System.out.println("Parsing complete, writing to file");
-                    ObjectIO.writeBooksToFile(bookOutFile + j + ".dat", bookSlice);
+                    ObjectIO.writeBooksToFile(processedBooksPath + bookOutFile + j + ".dat", bookSlice);
                 }
 
             }
         } else {
             books = new HashMap<>();
             for (int j = 0; j < nfile; j++) {
-                books.putAll(ObjectIO.readBooksFromFile(bookInFile + j + ".dat"));
+                books.putAll(ObjectIO.readBooksFromFile(processedBooksPath + bookInFile + j + ".dat"));
                 System.out.println("Finished reading file " + j);
             }
             printCharacters(books);

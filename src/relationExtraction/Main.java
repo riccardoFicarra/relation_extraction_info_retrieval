@@ -42,8 +42,8 @@ public class Main {
                 int skip = books.size() / nfile + 1;
                 for (int j = 0; j < nfile; j++) {
                     Collection<Book> bookSlice = books.values().stream().skip(j).limit((j + 1) * skip).collect(Collectors.toCollection(ArrayList::new));
-                    //bookSlice.forEach(b -> addSentences(b, booksPath));
-                    bookSlice.forEach(b -> System.out.println(b.getTitle()));
+                    bookSlice.forEach(b -> addSentences(b, booksPath));
+                    //bookSlice.forEach(b -> System.out.println(b.getTitle()));
                     System.out.println("Parsing complete, writing to file");
                     ObjectIO.writeBooksToFile(bookOutFile + j + ".dat", bookSlice);
                 }
@@ -56,7 +56,7 @@ public class Main {
             }
             printCharacters(books);
         }
-        // NAIVE BAYES MODEL
+        //NAIVE BAYES MODEL
         if (options.contains("b")) {
             NaiveBayes nbm = new NaiveBayes(labelType);
             nbm.buildModel(books);

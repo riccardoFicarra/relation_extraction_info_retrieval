@@ -45,7 +45,7 @@ public class Main {
                     ObjectIO.writeBookToFile(processedBooksPath,b);});*/
 
                 books.values().stream().limit(1).forEach(b -> {
-                    addSentences(b, booksPath);
+                    b.addSentences(booksPath);
                     ObjectIO.writeBookToFile(processedBooksPath, b);
                 });
 
@@ -66,13 +66,6 @@ public class Main {
         }
     }
 
-    private static void addSentences(Book book, String booksPath) {
-        try {
-            book.setSentences(BookAnalyzerHub.analyzeBook(booksPath + book.getTitle() + ".txt"));
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
 
     private static void printCharacters(HashMap<String, Book> books) {
         books.values().forEach(b -> {

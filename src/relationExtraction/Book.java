@@ -87,15 +87,26 @@ class Book implements Serializable {
      * @return relation between the two characters in the sentence: for now returns the affinity.
      */
     String getRelationFromSentence(Sentence s, NaiveBayes.RelationLabel relationLabel) {
+        String[] character = new String[2];
         Iterator<String> itr = s.getAppearingCharacters().iterator();
-        String character1 = itr.next();
-        String character2 = itr.next();
+        character[0] = itr.next();
+        character[1] = itr.next();
+        /*int foundCharacters = 0;
+        String[] character = new String[2];
+        while(foundCharacters <2){
+            for(String characterFromRelation : this.getCharacters()){
+                if(s.getPureSentence().contains(characterFromRelation)){
+                    character[foundCharacters] = characterFromRelation;
+                    foundCharacters++;
+                }
+            }
+        }*/
         if (relationLabel == NaiveBayes.RelationLabel.affinity)
-            return characterRelations.get(character1).get(character2).getAffinity();
+            return characterRelations.get(character[0]).get(character[1]).getAffinity();
         else if (relationLabel == NaiveBayes.RelationLabel.coarse)
-            return characterRelations.get(character1).get(character2).getCoarseCategory();
+            return characterRelations.get(character[0]).get(character[1]).getCoarseCategory();
         else
-            return characterRelations.get(character1).get(character2).getFineCategory();
+            return characterRelations.get(character[0]).get(character[1]).getFineCategory();
 
     }
 
@@ -109,6 +120,16 @@ class Book implements Serializable {
             return characterRelations.get(character1).containsKey(character2);
         }
         return false;
+    }
+
+
+    void addSentences(String booksPath) {
+        ArrayList<Sentence> sentences = BookAnalyzerHub.analyzeBook(booksPath + this.getTitle() + ".txt");
+        try {
+            this.setSentences(sentences);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
 

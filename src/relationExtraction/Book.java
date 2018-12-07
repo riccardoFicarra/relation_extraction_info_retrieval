@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.stream.Collectors;
 
 class Book implements Serializable {
 
@@ -64,9 +65,6 @@ class Book implements Serializable {
         return new HashSet<>(characterRelations.keySet());
     }
 
-    public void setSentences(ArrayList<Sentence> sentences) {
-        this.sentences = sentences;
-    }
 
     public ArrayList<Sentence> getSentences() {
         return sentences;
@@ -87,20 +85,12 @@ class Book implements Serializable {
      * @return relation between the two characters in the sentence: for now returns the affinity.
      */
     String getRelationFromSentence(Sentence s, NaiveBayes.RelationLabel relationLabel) {
+        //no check on number of characters: use the first two
         String[] character = new String[2];
         Iterator<String> itr = s.getAppearingCharacters().iterator();
         character[0] = itr.next();
         character[1] = itr.next();
-        /*int foundCharacters = 0;
-        String[] character = new String[2];
-        while(foundCharacters <2){
-            for(String characterFromRelation : this.getCharacters()){
-                if(s.getPureSentence().contains(characterFromRelation)){
-                    character[foundCharacters] = characterFromRelation;
-                    foundCharacters++;
-                }
-            }
-        }*/
+
         if (relationLabel == NaiveBayes.RelationLabel.affinity)
             return characterRelations.get(character[0]).get(character[1]).getAffinity();
         else if (relationLabel == NaiveBayes.RelationLabel.coarse)
@@ -110,12 +100,7 @@ class Book implements Serializable {
 
     }
 
-    boolean containsCharacterRelation(Sentence s) {
-        if (s.getAppearingCharacters().size() != 2)
-            return false;
-        Iterator<String> itr = s.getAppearingCharacters().iterator();
-        String character1 = itr.next();
-        String character2 = itr.next();
+    private boolean containsCharacterRelation(String character1, String character2) {
         if (characterRelations.containsKey(character1)) {
             return characterRelations.get(character1).containsKey(character2);
         }
@@ -126,11 +111,60 @@ class Book implements Serializable {
     void addSentences(String booksPath) {
         ArrayList<Sentence> sentences = BookAnalyzerHub.analyzeBook(booksPath + this.getTitle() + ".txt");
         try {
-            this.setSentences(sentences);
+            recomputeCharacters(sentences);
+            this.sentences = sentences.stream().filter(s -> s.getAppearingCharacters().size() >= 2).collect(Collectors.toCollection(ArrayList::new));
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
+
+    private void recomputeCharacters(ArrayList<Sentence> sentences) {
+        HashMap<String, String> alreadyFound = new HashMap<>();
+        for (Sentence sentence : sentences) {
+            HashSet<String> newCharacters = new HashSet<>();
+            ArrayList<String> characters = new ArrayList<>(sentence.getAppearingCharacters());
+            for (int i = 0; i < characters.size() - 1; i++) {
+                for (int j = i + 1; j < characters.size(); j++) {
+                    String char1 = characters.get(i);
+                    String char2 = characters.get(j);
+                    String relChar1 = "";
+                    String relChar2 = "";
+                    if (alreadyFound.containsKey(char1) && alreadyFound.containsKey(char2))
+                        continue;
+                    for (String relationCharacter : this.getCharacters()) {
+                        if (relationCharacter.indexOf(char1) != -1) {
+                            relChar1 = relationCharacter;
+                        }
+                        if (relationCharacter.indexOf(char2) != -1) {
+                            relChar2 = relationCharacter;
+                        }
+                        if (!relChar1.isEmpty() && !relChar2.isEmpty())
+                            break;
+                    }
+                    if (!relChar1.equals(relChar2) && this.containsCharacterRelation(relChar1, relChar2)) {
+                        alreadyFound.put(char1, relChar1);
+                        alreadyFound.put(char2, relChar2);
+                        newCharacters.add(relChar1);
+                        newCharacters.add(relChar2);
+                    }
+                }
+            }
+        /*    for(String sentenceCharacter : characters){
+                if(alreadyFound.containsKey(sentenceCharacter))
+                    newCharacters.add(alreadyFound.get(sentenceCharacter));
+                else{
+                    for(String relationCharacter : this.getCharacters()){
+                        if(relationCharacter.contains(sentenceCharacter)){
+                            alreadyFound.put(sentenceCharacter, relationCharacter);
+                            newCharacters.add(relationCharacter);
+                        }
+                    }
+                }
+            }*/
+            sentence.setAppearingCharacters(newCharacters);
+        }
+    }
+
 }
 
 

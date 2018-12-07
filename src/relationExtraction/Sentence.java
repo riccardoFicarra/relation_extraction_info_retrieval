@@ -31,6 +31,9 @@ public class Sentence implements Serializable {
         return appearingCharacters;
     }
 
+    void setAppearingCharacters(HashSet<String> appearingCharacters) {
+        this.appearingCharacters = appearingCharacters;
+    }
 
     public Sentence(String pureSentence, String sentenceAsPOS, String sentenceAsNER)
     {

@@ -38,13 +38,14 @@ class NaiveBayes {
         HashMap<String, Integer> count = new HashMap<>();
         for (Book book : books.values()) {
             for (Sentence sentence : book.getSentences()) {
-                if (book.containsCharacterRelation(sentence)) {
+                if (sentence.getAppearingCharacters().size() >= 2) {
                     String label = book.getRelationFromSentence(sentence, relationlabel);
                     sentence.getWordList().stream()
                             .filter(Word::isStopword)
                             .map(Word::getText/*additional processing here*/)
                             .forEach(w -> addToModel(probabilities, count, w, label));
                 }
+
             }
         }
         for (String label : probabilities.keySet()) {

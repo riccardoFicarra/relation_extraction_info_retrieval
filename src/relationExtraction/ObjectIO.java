@@ -29,14 +29,17 @@ class ObjectIO {
         GsonBuilder builder = new GsonBuilder();
         builder.serializeNulls();
         Gson gson = builder.create();
+
         final File folder = new File(bookpath);
         if (!folder.exists()) {
             throw new FileNotFoundException("Input folder does not exist");
         }
+
         File[] files = folder.listFiles();
         List<String> filepath = null;
         if (files != null)
             filepath = Stream.of(files).filter((File f) -> !f.isDirectory()).map(File::getPath).collect(Collectors.toList());
+
         if (filepath != null) {
             for (String filename : filepath) {
                 try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
@@ -51,6 +54,7 @@ class ObjectIO {
                 }
             }
         }
+
         return books;
     }
 

@@ -4,7 +4,6 @@ package relationExtraction;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -82,6 +81,7 @@ public class Main {
                         System.out.println(char1 + " " + char2 + " -> " + classified.get(char1).get(char2));
                     }
                 }
+                book.compareResults(classified);
             }
             System.out.println("Done");
         }

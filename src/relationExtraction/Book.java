@@ -92,7 +92,7 @@ class Book implements Serializable {
 
     }
 
-    private boolean containsCharacterRelation(String character1, String character2) {
+    boolean containsCharacterRelation(String character1, String character2) {
         if (characterRelations.containsKey(character1)) {
             return characterRelations.get(character1).containsKey(character2);
         }
@@ -151,6 +151,24 @@ class Book implements Serializable {
             }
             sentence.setAppearingCharacters(newCharacters);
         }
+    }
+
+    void compareResults(HashMap<String, HashMap<String, String>> classified) {
+        int wrong = 0;
+        int correct = 0;
+        for (String char1 : classified.keySet()) {
+            HashMap<String, String> char1Entry = classified.get(char1);
+            for (String char2 : char1Entry.keySet()) {
+                if (this.containsCharacterRelation(char1, char2)) {
+                    if (this.getCharacterRelations(char1).get(char2).getAffinity().equals(char1Entry.get(char2)))
+                        correct++;
+                    else
+                        wrong++;
+                }
+            }
+        }
+        System.out.println("Correct: " + correct + "\tWrong: " + wrong);
+
     }
 
 }

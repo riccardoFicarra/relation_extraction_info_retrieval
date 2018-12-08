@@ -33,6 +33,7 @@ public class Word implements Serializable {
     boolean isNotStopword(String word, HashSet<String> stopWordSet)
     {
         word = word.trim();
+        word = word.toLowerCase();
         if(stopWordSet.contains(word))
             return false;
         else

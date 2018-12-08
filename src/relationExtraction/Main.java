@@ -74,7 +74,11 @@ public class Main {
         if (options.contains("b")) {
             NaiveBayes nbm = new NaiveBayes(labelType);
             nbm.buildModel(books, stopWordSet);
+            System.out.println("Done");
         }
+
+
+
     }
 
 

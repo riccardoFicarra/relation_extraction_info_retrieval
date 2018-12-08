@@ -53,7 +53,7 @@ public class Main {
                     System.out.println(b.getTitle());
                     ObjectIO.writeBookToFile(processedBooksPath,b);});*/
 
-                books.values().stream().limit(1).forEach(b -> {
+                books.values().forEach(b -> {
                     b.addSentences(booksPath);
                     ObjectIO.writeBookToFile(processedBooksPath, b);
                 });
@@ -67,7 +67,7 @@ public class Main {
             //printCharacters(books);
         }
         // NAIVE BAYES MODEL
-        NaiveBayes nbm = null;
+        NaiveBayes nbm;
         if (options.contains("b")) {
             nbm = new NaiveBayes(labelType);
             nbm.buildModel(books, stopWordSet);

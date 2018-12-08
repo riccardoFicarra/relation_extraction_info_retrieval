@@ -32,6 +32,7 @@ public class Word implements Serializable {
 
     boolean isNotStopword(String word, HashSet<String> stopWordSet)
     {
+        word = word.trim();
         if(stopWordSet.contains(word))
             return false;
         else
@@ -40,6 +41,7 @@ public class Word implements Serializable {
 
     boolean isNotPunctuation(String word)
     {
+        word = word.trim();
         if (Pattern.matches("\\p{Punct}", word))
             return false;
         else
@@ -48,6 +50,7 @@ public class Word implements Serializable {
 
     boolean isNotNumber(String word)
     {
+        word = word.trim();
         if(Pattern.matches("\\d+", word))
             return false;
         else

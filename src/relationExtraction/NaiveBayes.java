@@ -11,6 +11,7 @@ class NaiveBayes {
      * Outer key is the label, inner key is the word, value is the probability (multinomial)
      */
     private HashMap<String, HashMap<String, Double>> probabilities;
+    private HashMap<String, Double> labelProbabilities;
     enum RelationLabel {affinity, coarse, fine}
 
 
@@ -91,7 +92,15 @@ class NaiveBayes {
     */
 
 
-    
+    private double calculateLabelProbability(String labelName)
+    {
+        HashMap<String, Double>  wordsOfLabelMap;
+
+        //Getting list of words/probabilities for current label
+        wordsOfLabelMap = this.probabilities.get(labelName);
+
+        return 0.0;
+    }
 
 
 }

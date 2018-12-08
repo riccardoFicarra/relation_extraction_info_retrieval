@@ -72,12 +72,16 @@ public class Main {
             nbm = new NaiveBayes(labelType);
             nbm.buildModel(books, stopWordSet);
             nbm.saveModelToFile(modelFileName);
-        } else if (options.contains("l"))
+        } else if (options.contains("l")) {
             nbm = new NaiveBayes(modelFileName, labelType);
-        HashMap<String, HashMap<String, String>> classified = nbm.classifyBook(books.get("Madame Bovary"));
-        for (String char1 : classified.keySet()) {
-            for (String char2 : classified.keySet()) {
-                System.out.println(char1 + " " + char2 + " -> " + classified.get(char1).get(char2));
+            for (Book book : books.values()) {
+                HashMap<String, HashMap<String, String>> classified = nbm.classifyBook(book);
+                System.out.println(book.getTitle());
+                for (String char1 : classified.keySet()) {
+                    for (String char2 : classified.keySet()) {
+                        System.out.println(char1 + " " + char2 + " -> " + classified.get(char1).get(char2));
+                    }
+                }
             }
         }
     }

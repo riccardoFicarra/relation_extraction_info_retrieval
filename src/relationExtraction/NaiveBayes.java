@@ -52,6 +52,7 @@ class NaiveBayes {
     void buildModel(HashMap<String, Book> books, HashSet<String> stopWordSet) {
         HashMap<String, HashMap<String, Double>> probabilities = new HashMap<>();
         HashMap<String, Double> labelProbabilities = new HashMap<>();
+        HashSet<String> vocabulary = new HashSet<>();
         HashMap<String, Integer> count = new HashMap<>();
         double totalNumOfWordOccurencies = 0;       //Word count cumulative for all labels
 
@@ -66,7 +67,7 @@ class NaiveBayes {
                                     .filter(w -> w.isNotNumber(w.getText()))
                                     .filter(w -> w.isNotStopword(w.getText(), stopWordSet))
                                     .map(Word::getText/*additional processing here*/)
-                                    .forEach(w -> addToModel(probabilities, count, w, label));
+                                    .forEach(w -> addToModel(probabilities, count, w, label, vocabulary));
                         }
                     }
                 }
@@ -84,9 +85,12 @@ class NaiveBayes {
             HashMap<String, Double> labelEntry = probabilities.get(label);
             double dividend = count.get(label);     //Count of words with label label
 
-            for (String word : labelEntry.keySet()) {
+            for (String word : vocabulary) {
                 //ADD ONE SMOOTHING HERE
-                labelEntry.put(word, (labelEntry.get(word) + 1) / (dividend + labelEntry.size()));
+                if (labelEntry.containsKey(word))
+                    labelEntry.put(word, (labelEntry.get(word) + 1) / (dividend + vocabulary.size()));
+                else
+                    labelEntry.put(word, 1 / (dividend + vocabulary.size()));
             }
 
             //Calculating P(label) for the current label
@@ -96,7 +100,8 @@ class NaiveBayes {
         this.labelProbabilities = labelProbabilities;
     }
 
-    private static void addToModel(HashMap<String, HashMap<String, Double>> probabilities, HashMap<String, Integer> count, String w, String label) {
+    private static void addToModel(HashMap<String, HashMap<String, Double>> probabilities, HashMap<String, Integer> count, String w, String label, HashSet<String> vocabulary) {
+        vocabulary.add(w);
         if (!probabilities.containsKey(label) || !count.containsKey(label)) {
             probabilities.put(label, new HashMap<>());
             count.put(label, 0);
@@ -177,7 +182,7 @@ class NaiveBayes {
         for(String label : labelProbability.keySet())
         {
             //why does it work with min and not with max, NANI
-            if (labelProbability.get(label) < max || maxLabel.equals("NIENTE"))
+            if (labelProbability.get(label) > max || maxLabel.equals("NIENTE"))
             {
                 max = labelProbability.get(label);
                 maxLabel = label;

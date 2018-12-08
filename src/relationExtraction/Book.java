@@ -112,6 +112,7 @@ class Book implements Serializable {
         ArrayList<Sentence> sentences = BookAnalyzerHub.analyzeBook(booksPath + this.getTitle() + ".txt");
         try {
             recomputeCharacters(sentences);
+            //only add sentences with >= 2 characters
             this.sentences = sentences.stream().filter(s -> s.getAppearingCharacters().size() >= 2).collect(Collectors.toCollection(ArrayList::new));
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -156,18 +157,6 @@ class Book implements Serializable {
                     }
                 }
             }
-        /*    for(String sentenceCharacter : characters){
-                if(alreadyFound.containsKey(sentenceCharacter))
-                    newCharacters.add(alreadyFound.get(sentenceCharacter));
-                else{
-                    for(String relationCharacter : this.getCharacters()){
-                        if(relationCharacter.contains(sentenceCharacter)){
-                            alreadyFound.put(sentenceCharacter, relationCharacter);
-                            newCharacters.add(relationCharacter);
-                        }
-                    }
-                }
-            }*/
             sentence.setAppearingCharacters(newCharacters);
         }
     }

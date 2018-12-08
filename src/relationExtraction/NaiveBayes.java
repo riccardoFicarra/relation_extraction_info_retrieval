@@ -1,5 +1,12 @@
 package relationExtraction;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 
 class NaiveBayes {
@@ -16,6 +23,10 @@ class NaiveBayes {
         this.relationlabel = RelationLabel.valueOf(relationlabel);
     }
 
+    NaiveBayes(String filepath, String relationlabel) {
+        this.relationlabel = RelationLabel.valueOf(relationlabel);
+        readModelFromFile(filepath);
+    }
 
     /*
      * @param books
@@ -71,18 +82,28 @@ class NaiveBayes {
             labelEntry.put(w, 1.0);
         count.put(label, count.get(label) + 1);
     }
-/*
 
-    private static void mergeLabeledSentences(HashMap<String, List<Sentence>> labeledSentences, HashMap<String, List<Sentence>> bookLabeledSentences) {
-        for (String relation : bookLabeledSentences.keySet()) {
-            labeledSentences.merge(relation, bookLabeledSentences.get(relation), (l1, l2) -> {
-                List<Sentence> newList = new ArrayList<>();
-                newList.addAll(l1);
-                newList.addAll(l2);
-                return newList;
-            });
+    void saveModelToFile(String filepath) {
+        GsonBuilder builder = new GsonBuilder();
+        //builder.serializeNulls();
+        Gson gson = builder.create();
+        // System.out.println(gson.toJson(book));
+        try (FileWriter file = new FileWriter(filepath)) {
+            file.write(gson.toJson(this));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-    */
 
+    private void readModelFromFile(String filename) {
+        GsonBuilder builder = new GsonBuilder();
+        //builder.serializeNulls();
+        Gson gson = builder.create();
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            NaiveBayes fromFile = gson.fromJson(br, NaiveBayes.class);
+            probabilities = fromFile.probabilities;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

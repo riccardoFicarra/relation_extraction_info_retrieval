@@ -13,8 +13,8 @@ public class Main {
      * @param args
      * [0] -> path of character relations file
      * [1] -> path of books folder
-     * [2] -> options: p = parse, f = force overwrite, b = build Naive Bayes model
-     * [3] [only with b option] label type to use in classifier. {affinity, coarse, fine}
+     * [2] -> options: p = parse, f = force overwrite, b = build Naive Bayes model, l = load Naive Bayes model from file
+     * [3] [only with b or l option] label type to use in classifier. {affinity, coarse, fine}
      */
     public static void main(String[] args) {
         String crFilePath = args[0];
@@ -24,6 +24,7 @@ public class Main {
         String processedBooksPath = "processedBooks/";
         String bookOutFile = "booksJson";
         String bookInFile = "booksJson";
+        String modelFileName = "NaiveBayesModel.json";
         int nfile = 3;
         //PARSING FILES
         HashMap<String, Book> books = null;
@@ -60,10 +61,14 @@ public class Main {
             //printCharacters(books);
         }
         // NAIVE BAYES MODEL
+        NaiveBayes nbm = null;
         if (options.contains("b")) {
-            NaiveBayes nbm = new NaiveBayes(labelType);
+            nbm = new NaiveBayes(labelType);
             nbm.buildModel(books);
-        }
+            nbm.saveModelToFile(modelFileName);
+        } else if (options.contains("l"))
+            nbm = new NaiveBayes(modelFileName, labelType);
+        nbm.toString();
     }
 
 

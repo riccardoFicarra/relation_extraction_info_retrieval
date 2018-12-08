@@ -19,7 +19,10 @@ class NaiveBayes {
      * Outer key is the label, inner key is the word, value is the probability (multinomial)
      */
     private HashMap<String, HashMap<String, Double>> probabilities;
+    private HashMap<String, Double> labelProbabilities;     //P(label) for each label
     enum RelationLabel {affinity, coarse, fine}
+
+
     //lap: add 1 smoothing; log: use logs to avoid underflow; sparse: used dataset is sparse
     NaiveBayes(String relationlabel) {
         this.relationlabel = RelationLabel.valueOf(relationlabel);
@@ -48,7 +51,10 @@ class NaiveBayes {
 
     void buildModel(HashMap<String, Book> books, HashSet<String> stopWordSet) {
         HashMap<String, HashMap<String, Double>> probabilities = new HashMap<>();
+        HashMap<String, Double> labelProbabilities = new HashMap<>();
         HashMap<String, Integer> count = new HashMap<>();
+        double totalNumOfWordOccurencies = 0;       //Word count cumulative for all labels
+
         for (Book book : books.values()) {
             for (Sentence sentence : book.getSentences()) {
                 if (sentence.getAppearingCharacters().size() >= 2) {
@@ -62,15 +68,28 @@ class NaiveBayes {
                 }
             }
         }
+
+        //Counting cumulative total number of words
+        for (String label : probabilities.keySet()) {
+            double dividend = count.get(label);     //Count of words with label label
+
+            totalNumOfWordOccurencies = totalNumOfWordOccurencies + dividend;
+        }
+
         for (String label : probabilities.keySet()) {
             HashMap<String, Double> labelEntry = probabilities.get(label);
-            double dividend = count.get(label);
+            double dividend = count.get(label);     //Count of words with label label
+
             for (String word : labelEntry.keySet()) {
                 //ADD ONE SMOOTHING HERE
                 labelEntry.put(word, (labelEntry.get(word) + 1) / (dividend + labelEntry.size()));
             }
+
+            //Calculating P(label) for the current label
+            labelProbabilities.put(label, (dividend/totalNumOfWordOccurencies));
         }
         this.probabilities = probabilities;
+        this.labelProbabilities = labelProbabilities;
     }
 
     private static void addToModel(HashMap<String, HashMap<String, Double>> probabilities, HashMap<String, Integer> count, String w, String label) {
@@ -110,20 +129,60 @@ class NaiveBayes {
         }
     }
 
-    private double calculateLabelProbability(String labelName)
+    //Given a sentence, returns its label
+    String calculateSentenceLabel(Sentence sentenceToLabel)
     {
-        HashMap<String, Double>  wordsOfLabelMap;
+        //NOTE: summing logs instead of multiplying probs, in order to avoid underflow
+        HashMap<String, Double>  labelProbability = new HashMap<String, Double>();
 
-        //Getting list of words/probabilities for current label
-        wordsOfLabelMap = this.probabilities.get(labelName);
+        //Iterating through all possible labels
+        for(String label : labelProbabilities.keySet())
+        {
+            //Adding the label probability first
+            labelProbability.put(label, Math.log10(labelProbabilities.get(label)));
+            //Iterating through all words of the label
+            HashMap<String, Double> wordProbs = this.probabilities.get(label);
+            for(String word : wordProbs.keySet())
+            {
+                double tmpValue;
+                if(sentenceToLabel.containsWord(word))
+                {
+                    //If the sentence contains this word, then we add its probability
+                    tmpValue = labelProbability.get(label);
+                    tmpValue = tmpValue + Math.log10(wordProbs.get(word));
+                    labelProbability.put(label, tmpValue);
+                }
+                else
+                {
+                    //If the sentence does NOT contain this word, then add 1-probability
+                    tmpValue = labelProbability.get(label);
+                    tmpValue = tmpValue + Math.log10(1-wordProbs.get(word));
+                    labelProbability.put(label, tmpValue);
+                }
 
-        return 0.0;
+            }
+
+        }
+
+
+        //Choosing the label with greatest probability
+        double max = 0;
+        String maxLabel = "NIENTE";
+
+        for(String label : labelProbability.keySet())
+        {
+            if(labelProbability.get(label) > max)
+            {
+                max = labelProbability.get(label);
+                maxLabel = label;
+            }
+        }
+
+
+
+        return maxLabel;
     }
 
-    //placeholder function to classify sentence
-    private String calculateSentenceLabel(Sentence seentence) {
-        return "positive";
-    }
 
     /**
      * outer key: char1

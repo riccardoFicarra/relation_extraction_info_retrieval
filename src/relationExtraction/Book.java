@@ -80,13 +80,15 @@ class Book implements Serializable {
         Iterator<String> itr = s.getAppearingCharacters().iterator();
         character[0] = itr.next();
         character[1] = itr.next();
-
-        if (relationLabel == NaiveBayes.RelationLabel.affinity)
-            return characterRelations.get(character[0]).get(character[1]).getAffinity();
-        else if (relationLabel == NaiveBayes.RelationLabel.coarse)
-            return characterRelations.get(character[0]).get(character[1]).getCoarseCategory();
-        else
-            return characterRelations.get(character[0]).get(character[1]).getFineCategory();
+        if (characterRelations.containsKey(character[0]) && characterRelations.get(character[0]).containsKey(character[1])) {
+            if (relationLabel == NaiveBayes.RelationLabel.affinity)
+                return characterRelations.get(character[0]).get(character[1]).getAffinity();
+            else if (relationLabel == NaiveBayes.RelationLabel.coarse)
+                return characterRelations.get(character[0]).get(character[1]).getCoarseCategory();
+            else
+                return characterRelations.get(character[0]).get(character[1]).getFineCategory();
+        } else
+            return null;
 
     }
 

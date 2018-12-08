@@ -56,15 +56,19 @@ class NaiveBayes {
         double totalNumOfWordOccurencies = 0;       //Word count cumulative for all labels
 
         for (Book book : books.values()) {
-            for (Sentence sentence : book.getSentences()) {
-                if (sentence.getAppearingCharacters().size() >= 2) {
-                    String label = book.getRelationFromSentence(sentence, relationlabel);
-                    sentence.getWordList().stream()
-                            .filter(w->w.isNotPunctuation(w.getText()))
-                            .filter(w->w.isNotNumber(w.getText()))
-                            .filter(w->w.isNotStopword(w.getText(),stopWordSet))
-                            .map(Word::getText/*additional processing here*/)
-                            .forEach(w -> addToModel(probabilities, count, w, label));
+            if (book.getSentences() != null) {
+                for (Sentence sentence : book.getSentences()) {
+                    if (sentence.getAppearingCharacters().size() >= 2) {
+                        String label = book.getRelationFromSentence(sentence, relationlabel);
+                        if (label != null) {
+                            sentence.getWordList().stream()
+                                    .filter(w -> w.isNotPunctuation(w.getText()))
+                                    .filter(w -> w.isNotNumber(w.getText()))
+                                    .filter(w -> w.isNotStopword(w.getText(), stopWordSet))
+                                    .map(Word::getText/*additional processing here*/)
+                                    .forEach(w -> addToModel(probabilities, count, w, label));
+                        }
+                    }
                 }
             }
         }
@@ -124,19 +128,20 @@ class NaiveBayes {
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             NaiveBayes fromFile = gson.fromJson(br, NaiveBayes.class);
             probabilities = fromFile.probabilities;
+            labelProbabilities = fromFile.labelProbabilities;
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     //Given a sentence, returns its label
-    String calculateSentenceLabel(Sentence sentenceToLabel)
+    private String calculateSentenceLabel(Sentence sentenceToLabel)
     {
         //NOTE: summing logs instead of multiplying probs, in order to avoid underflow
-        HashMap<String, Double>  labelProbability = new HashMap<String, Double>();
+        HashMap<String, Double> labelProbability = new HashMap<>();
 
         //Iterating through all possible labels
-        for(String label : labelProbabilities.keySet())
+        for (String label : this.labelProbabilities.keySet())
         {
             //Adding the label probability first
             labelProbability.put(label, Math.log10(labelProbabilities.get(label)));
@@ -171,7 +176,7 @@ class NaiveBayes {
 
         for(String label : labelProbability.keySet())
         {
-            if(labelProbability.get(label) > max)
+            if (labelProbability.get(label) > max || maxLabel.equals("NIENTE"))
             {
                 max = labelProbability.get(label);
                 maxLabel = label;
@@ -196,17 +201,19 @@ class NaiveBayes {
          * value: relations
          */
         HashMap<String, HashMap<String, LabelCounter>> counter = new HashMap<>();
-        for (Sentence sentence : book.getSentences()) {
-            if (sentence.getAppearingCharacters().size() < 2)
-                //skip all sentences with less than 2 characters
-                continue;
-            String label = this.calculateSentenceLabel(sentence);
-            String[] character = new String[2];
-            Iterator<String> itr = sentence.getAppearingCharacters().iterator();
-            character[0] = itr.next();
-            character[1] = itr.next();
-            //function to populate hashmap
-            addToCounter(character[0], character[1], label, counter);
+        if (book.getSentences() != null) {
+            for (Sentence sentence : book.getSentences()) {
+                if (sentence.getAppearingCharacters().size() < 2)
+                    //skip all sentences with less than 2 characters
+                    continue;
+                String label = this.calculateSentenceLabel(sentence);
+                String[] character = new String[2];
+                Iterator<String> itr = sentence.getAppearingCharacters().iterator();
+                character[0] = itr.next();
+                character[1] = itr.next();
+                //function to populate hashmap
+                addToCounter(character[0], character[1], label, counter);
+            }
         }
         //fill map with most frequent label.
         HashMap<String, HashMap<String, String>> classifiedChars = new HashMap<>();

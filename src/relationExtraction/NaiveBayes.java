@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 
 class NaiveBayes {
 
@@ -120,5 +121,77 @@ class NaiveBayes {
         return 0.0;
     }
 
+    /**
+     * outer key: char1
+     * inner key: char2
+     * value: relation
+     */
+    HashMap<String, HashMap<String, String>> classifyBook(Book book) {
+        /*
+         * outer key: char1
+         * inner key: char2
+         * value: relations
+         */
+        HashMap<String, HashMap<String, LabelCounter>> counter = new HashMap<>();
+        for (Sentence sentence : book.getSentences()) {
+            String label = this.calculateSentenceLabel(sentence);
+            String[] character = new String[2];
+            Iterator<String> itr = sentence.getAppearingCharacters().iterator();
+            character[0] = itr.next();
+            character[1] = itr.next();
+            addToCounter(character[0], character[1], label, counter);
+        }
+        HashMap<String, HashMap<String, String>> classifiedChars = new HashMap<>();
+        for (String char1 : counter.keySet()) {
+            for (String char2 : counter.keySet()) {
+                HashMap<String, String> temp = new HashMap<>();
+                temp.put(char2, counter.get(char1).get(char2).getMaxLabel());
+                classifiedChars.put(char1, temp);
+            }
+        }
+        return classifiedChars;
+    }
+
+    private void addToCounter(String c1, String c2, String label, HashMap<String, HashMap<String, LabelCounter>> counter) {
+        if (counter.containsKey(c1)) {
+            HashMap<String, LabelCounter> char1 = counter.get(c1);
+            if (!char1.containsKey(c2)) {
+                char1.put(c2, new LabelCounter());
+            }
+            char1.get(c2).incrementLabel(label);
+        } else {
+            LabelCounter lc = new LabelCounter();
+            lc.incrementLabel(label);
+            HashMap<String, LabelCounter> char1 = new HashMap<>();
+            char1.put(c2, lc);
+            counter.put(c1, char1);
+        }
+    }
+
+
+}
+
+class LabelCounter {
+    private HashMap<String, Integer> labelcounters = new HashMap<>();
+
+    void incrementLabel(String label) {
+        if (labelcounters.containsKey(label)) {
+            labelcounters.put(label, labelcounters.get(label) + 1);
+        } else
+            labelcounters.put(label, 1);
+    }
+
+    String getMaxLabel() {
+        int max = 0;
+        String maxLabel = "";
+        for (String label : labelcounters.keySet()) {
+            int value = labelcounters.get(label);
+            if (value > max) {
+                max = value;
+                maxLabel = label;
+            }
+        }
+        return maxLabel;
+    }
 
 }

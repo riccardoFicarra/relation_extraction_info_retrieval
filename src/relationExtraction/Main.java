@@ -57,8 +57,6 @@ public class Main {
                     b.addSentences(booksPath);
                     ObjectIO.writeBookToFile(processedBooksPath, b);
                 });
-
-
             }
         } else {
             try {
@@ -76,7 +74,12 @@ public class Main {
             nbm.saveModelToFile(modelFileName);
         } else if (options.contains("l"))
             nbm = new NaiveBayes(modelFileName, labelType);
-        nbm.toString();
+        HashMap<String, HashMap<String, String>> classified = nbm.classifyBook(books.get("Madame Bovary"));
+        for (String char1 : classified.keySet()) {
+            for (String char2 : classified.keySet()) {
+                System.out.println(char1 + " " + char2 + " -> " + classified.get(char1).get(char2));
+            }
+        }
     }
 
 

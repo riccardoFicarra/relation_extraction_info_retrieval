@@ -60,7 +60,6 @@ class NaiveBayes {
                             .map(Word::getText/*additional processing here*/)
                             .forEach(w -> addToModel(probabilities, count, w, label));
                 }
-
             }
         }
         for (String label : probabilities.keySet()) {

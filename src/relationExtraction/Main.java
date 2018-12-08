@@ -11,11 +11,10 @@ import java.util.stream.Collectors;
 
 public class Main {
     /**
-     * @param args
-     * [0] -> path of character relations file
-     * [1] -> path of books folder
-     * [2] -> options: p = parse, f = force overwrite, b = build Naive Bayes model, l = load Naive Bayes model from file
-     * [3] [only with b or l option] label type to use in classifier. {affinity, coarse, fine}
+     * @param args [0] -> path of character relations file
+     *             [1] -> path of books folder
+     *             [2] -> options: p = parse, f = force overwrite, b = build Naive Bayes model, l = load Naive Bayes model from file
+     *             [3] [only with b or l option] label type to use in classifier. {affinity, coarse, fine}
      */
     public static void main(String[] args) {
 
@@ -49,9 +48,9 @@ public class Main {
             if (!bookExists || options.contains("f") || choice.equals("y")) {
                 CharacterRelationParser crp = new CharacterRelationParser(crFilePath);
                 books = crp.parseCharacterRelations();
-                /*books.values().forEach(b -> {
-                    System.out.println(b.getTitle());
-                    ObjectIO.writeBookToFile(processedBooksPath,b);});*/
+				/*books.values().forEach(b -> {
+					System.out.println(b.getTitle());
+					ObjectIO.writeBookToFile(processedBooksPath,b);});*/
 
                 books.values().forEach(b -> {
                     b.addSentences(booksPath);

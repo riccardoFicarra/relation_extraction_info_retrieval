@@ -78,7 +78,7 @@ public class Main {
                 HashMap<String, HashMap<String, String>> classified = nbm.classifyBook(book);
                 System.out.println(book.getTitle());
                 for (String char1 : classified.keySet()) {
-                    for (String char2 : classified.keySet()) {
+                    for (String char2 : classified.get(char1).keySet()) {
                         System.out.println(char1 + " " + char2 + " -> " + classified.get(char1).get(char2));
                     }
                 }

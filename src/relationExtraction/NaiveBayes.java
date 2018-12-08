@@ -121,6 +121,10 @@ class NaiveBayes {
         return 0.0;
     }
 
+    private String calculateSentenceLabel(Sentence seentence) {
+        return "positive";
+    }
+
     /**
      * outer key: char1
      * inner key: char2
@@ -134,6 +138,8 @@ class NaiveBayes {
          */
         HashMap<String, HashMap<String, LabelCounter>> counter = new HashMap<>();
         for (Sentence sentence : book.getSentences()) {
+            if (sentence.getAppearingCharacters().size() < 2)
+                continue;
             String label = this.calculateSentenceLabel(sentence);
             String[] character = new String[2];
             Iterator<String> itr = sentence.getAppearingCharacters().iterator();
@@ -143,7 +149,7 @@ class NaiveBayes {
         }
         HashMap<String, HashMap<String, String>> classifiedChars = new HashMap<>();
         for (String char1 : counter.keySet()) {
-            for (String char2 : counter.keySet()) {
+            for (String char2 : counter.get(char1).keySet()) {
                 HashMap<String, String> temp = new HashMap<>();
                 temp.put(char2, counter.get(char1).get(char2).getMaxLabel());
                 classifiedChars.put(char1, temp);

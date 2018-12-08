@@ -1,6 +1,7 @@
 package relationExtraction;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 class NaiveBayes {
 
@@ -11,6 +12,8 @@ class NaiveBayes {
      */
     private HashMap<String, HashMap<String, Double>> probabilities;
     enum RelationLabel {affinity, coarse, fine}
+
+
     //lap: add 1 smoothing; log: use logs to avoid underflow; sparse: used dataset is sparse
     NaiveBayes(String relationlabel) {
         this.relationlabel = RelationLabel.valueOf(relationlabel);
@@ -33,7 +36,7 @@ class NaiveBayes {
         return labeledSentences;
     }*/
 
-    void buildModel(HashMap<String, Book> books) {
+    void buildModel(HashMap<String, Book> books, HashSet<String> stopWordSet) {
         HashMap<String, HashMap<String, Double>> probabilities = new HashMap<>();
         HashMap<String, Integer> count = new HashMap<>();
         for (Book book : books.values()) {
@@ -41,7 +44,9 @@ class NaiveBayes {
                 if (sentence.getAppearingCharacters().size() >= 2) {
                     String label = book.getRelationFromSentence(sentence, relationlabel);
                     sentence.getWordList().stream()
-                            .filter(Word::isStopword)
+                            .filter(w->w.isNotPunctuation(w.getText()))
+                            .filter(w->w.isNotNumber(w.getText()))
+                            .filter(w->w.isNotStopword(w.getText(),stopWordSet))
                             .map(Word::getText/*additional processing here*/)
                             .forEach(w -> addToModel(probabilities, count, w, label));
                 }
@@ -84,5 +89,9 @@ class NaiveBayes {
         }
     }
     */
+
+
+    
+
 
 }

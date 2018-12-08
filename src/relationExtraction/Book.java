@@ -70,16 +70,6 @@ class Book implements Serializable {
         return sentences;
     }
 
-    /*
-     * @return hashmap with relations as keys and sentences as values
-     */
-    /*
-    HashMap<String, List<Sentence>> buildRelationSentence(NaiveBayes.RelationLabel relationLabel) {
-        Map<String, List<Sentence>> relationSentence;
-        relationSentence = sentences.parallelStream().filter(this::containsCharacterRelation).collect(Collectors.groupingBy(s -> this.getRelationFromSentence(s, relationLabel)));
-        return new HashMap<>(relationSentence);
-    }
-*/
     /**
      * @param s sentence to analyze
      * @return relation between the two characters in the sentence: for now returns the affinity.

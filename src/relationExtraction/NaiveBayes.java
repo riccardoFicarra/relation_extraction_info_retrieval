@@ -121,6 +121,7 @@ class NaiveBayes {
         return 0.0;
     }
 
+    //placeholder function to classify sentence
     private String calculateSentenceLabel(Sentence seentence) {
         return "positive";
     }
@@ -139,14 +140,17 @@ class NaiveBayes {
         HashMap<String, HashMap<String, LabelCounter>> counter = new HashMap<>();
         for (Sentence sentence : book.getSentences()) {
             if (sentence.getAppearingCharacters().size() < 2)
+                //skip all sentences with less than 2 characters
                 continue;
             String label = this.calculateSentenceLabel(sentence);
             String[] character = new String[2];
             Iterator<String> itr = sentence.getAppearingCharacters().iterator();
             character[0] = itr.next();
             character[1] = itr.next();
+            //function to populate hashmap
             addToCounter(character[0], character[1], label, counter);
         }
+        //fill map with most frequent label.
         HashMap<String, HashMap<String, String>> classifiedChars = new HashMap<>();
         for (String char1 : counter.keySet()) {
             for (String char2 : counter.get(char1).keySet()) {
@@ -158,6 +162,7 @@ class NaiveBayes {
         return classifiedChars;
     }
 
+    //function that increases the label counter between two characters
     private void addToCounter(String c1, String c2, String label, HashMap<String, HashMap<String, LabelCounter>> counter) {
         if (counter.containsKey(c1)) {
             HashMap<String, LabelCounter> char1 = counter.get(c1);
@@ -177,6 +182,7 @@ class NaiveBayes {
 
 }
 
+//class to handle label occurrence counting
 class LabelCounter {
     private HashMap<String, Integer> labelcounters = new HashMap<>();
 

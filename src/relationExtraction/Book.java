@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 class Book implements Serializable {
 
     private HashMap<String, HashMap<String, CharacterRelation>> characterRelations = new HashMap<>();
+
     private String title;
     private String author;
     private ArrayList<Sentence> sentences;
@@ -164,6 +165,9 @@ class Book implements Serializable {
             sentence.setAppearingCharacters(newCharacters);
         }
     }
+
+
+    
 
 }
 

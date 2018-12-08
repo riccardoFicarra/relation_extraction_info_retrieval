@@ -43,6 +43,8 @@ public class Sentence implements Serializable {
         this.pureSentence = pureSentence;
         //Saving list of words
         this.wordList = new ArrayList<>();
+        String firstName = "";
+        boolean toAdd = false;
         String[] wordArray = pureSentence.split("\\s+");
         String[] POSArray = sentenceAsPOS.split("\\s+");
         String[] NERArray = sentenceAsNER.split("\\s+");
@@ -56,6 +58,21 @@ public class Sentence implements Serializable {
                 //Checking if we need to add a story character
                 if(NERelement[1].equals("PERSON"))
                 {
+                    if(toAdd == false)
+                    {
+                        //First character name that has been found
+                        firstName = NERelement[0];
+                        toAdd = true;
+                        appearingCharacters.add(NERelement[0]);
+                    }
+                    else
+                    {
+                        //Second consecutive character name that has been found: probably it is its surname or something
+                        toAdd = false;
+                        if(!firstName.isEmpty())
+                            appearingCharacters.add(firstName + " " +NERelement[0]);
+                        appearingCharacters.add(NERelement[0]);
+                    }
                     //System.out.println(NERelement[0]+" is a person");
                     appearingCharacters.add(NERelement[0]);
                 }

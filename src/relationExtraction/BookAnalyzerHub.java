@@ -100,11 +100,15 @@ public class BookAnalyzerHub {
             ///////////////////////////////////////////////////////////////////
             //Now that we have the final sentence, we store it in the correct structures...
             //POS Tagging (We already have NER)
-            sentenceAsPOS = POStagger.tagString(currentFinalSentence);
+            try {
+                sentenceAsPOS = POStagger.tagString(currentFinalSentence);
+                Sentence s = new Sentence(sentenceArrayList.get(i), sentenceAsPOS, sentenceAsNER);
+                if (s.getAppearingCharacters().size() >= 2)
+                    finalSentences.add(s);
+            } catch (OutOfMemoryError e) {
+                System.err.println("Sentence skipped because out of memory");
+            }
             //Saving into the onject
-            Sentence s = new Sentence(sentenceArrayList.get(i), sentenceAsPOS, sentenceAsNER);
-            if (s.getAppearingCharacters().size() >= 2)
-                finalSentences.add(s);
 
 
         }

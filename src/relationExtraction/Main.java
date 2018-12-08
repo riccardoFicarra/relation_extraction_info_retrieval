@@ -4,7 +4,6 @@ package relationExtraction;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -29,7 +28,6 @@ public class Main {
         String bookOutFile = "booksJson";
         String bookInFile = "booksJson";
         String modelFileName = "NaiveBayesModel.json";
-        int nfile = 3;
 
 
         //Initializing Stop Word set

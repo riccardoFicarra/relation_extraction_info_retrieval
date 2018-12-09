@@ -66,7 +66,7 @@ public class Main {
             //printCharacters(books);
         }
         // NAIVE BAYES MODEL
-        NaiveBayes nbm;
+        NaiveBayes nbm = null;
         if (options.contains("b")) {
             nbm = new NaiveBayes(labelType);
             nbm.buildModel(books, stopWordSet);
@@ -85,6 +85,22 @@ public class Main {
             }
             System.out.println("Done");
         }
+
+
+        //----------CLASSIFYING VIRGIN BOOK---------------------------
+        //Now we try to classify a virgin book
+        String bookPath = "./TrainingBooks/Ghosts.txt";
+        Book bookToAnalyze = new Book(bookPath,"---");
+        HashMap<String, HashMap<String, String>> classifiedCharacters;
+
+        bookToAnalyze.setSentences(BookAnalyzerHub.analyzeBook(bookPath));
+        if (nbm!=null)
+        {
+            classifiedCharacters = nbm.classifyBook(bookToAnalyze);
+            System.out.println(classifiedCharacters);
+        }
+
+
     }
 
 

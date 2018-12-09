@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 class Book implements Serializable {
 
     private HashMap<String, HashMap<String, CharacterRelation>> characterRelations = new HashMap<>();
+
     private String title;
     private String author;
     private ArrayList<Sentence> sentences;
@@ -100,6 +101,7 @@ class Book implements Serializable {
     }
 
 
+
     void addSentences(String booksPath) {
         try {
             ArrayList<Sentence> sentences = BookAnalyzerHub.analyzeBook(booksPath + this.getTitle() + ".txt");
@@ -171,6 +173,10 @@ class Book implements Serializable {
 
     }
 
+
+    public void setSentences(ArrayList<Sentence> sentences) {
+        this.sentences = sentences;
+    }
 }
 
 

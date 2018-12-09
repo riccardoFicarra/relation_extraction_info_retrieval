@@ -71,16 +71,6 @@ class Book implements Serializable {
         return sentences;
     }
 
-    /*
-     * @return hashmap with relations as keys and sentences as values
-     */
-    /*
-    HashMap<String, List<Sentence>> buildRelationSentence(NaiveBayes.RelationLabel relationLabel) {
-        Map<String, List<Sentence>> relationSentence;
-        relationSentence = sentences.parallelStream().filter(this::containsCharacterRelation).collect(Collectors.groupingBy(s -> this.getRelationFromSentence(s, relationLabel)));
-        return new HashMap<>(relationSentence);
-    }
-*/
     /**
      * @param s sentence to analyze
      * @return relation between the two characters in the sentence: for now returns the affinity.
@@ -91,17 +81,19 @@ class Book implements Serializable {
         Iterator<String> itr = s.getAppearingCharacters().iterator();
         character[0] = itr.next();
         character[1] = itr.next();
-
-        if (relationLabel == NaiveBayes.RelationLabel.affinity)
-            return characterRelations.get(character[0]).get(character[1]).getAffinity();
-        else if (relationLabel == NaiveBayes.RelationLabel.coarse)
-            return characterRelations.get(character[0]).get(character[1]).getCoarseCategory();
-        else
-            return characterRelations.get(character[0]).get(character[1]).getFineCategory();
+        if (characterRelations.containsKey(character[0]) && characterRelations.get(character[0]).containsKey(character[1])) {
+            if (relationLabel == NaiveBayes.RelationLabel.affinity)
+                return characterRelations.get(character[0]).get(character[1]).getAffinity();
+            else if (relationLabel == NaiveBayes.RelationLabel.coarse)
+                return characterRelations.get(character[0]).get(character[1]).getCoarseCategory();
+            else
+                return characterRelations.get(character[0]).get(character[1]).getFineCategory();
+        } else
+            return null;
 
     }
 
-    private boolean containsCharacterRelation(String character1, String character2) {
+    boolean containsCharacterRelation(String character1, String character2) {
         if (characterRelations.containsKey(character1)) {
             return characterRelations.get(character1).containsKey(character2);
         }
@@ -109,16 +101,25 @@ class Book implements Serializable {
     }
 
 
+
     void addSentences(String booksPath) {
-        ArrayList<Sentence> sentences = BookAnalyzerHub.analyzeBook(booksPath + this.getTitle() + ".txt");
         try {
+            ArrayList<Sentence> sentences = BookAnalyzerHub.analyzeBook(booksPath + this.getTitle() + ".txt");
             recomputeCharacters(sentences);
+            //only add sentences with >= 2 characters
             this.sentences = sentences.stream().filter(s -> s.getAppearingCharacters().size() >= 2).collect(Collectors.toCollection(ArrayList::new));
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
+    /**
+     * @param sentences This function computes all possible pairs between characters recognized by the NER in the book
+     *                  and checks if the character names are contained in the characters obtained by the character relations file.
+     *                  If the check for a pair of characters is positive and they have a relation between themselves,
+     *                  the character name from the book is substituted by the one from the character relations file.
+     *                  An hashmap avoids repeating useless work for already found couples.
+     */
     private void recomputeCharacters(ArrayList<Sentence> sentences) {
         HashMap<String, String> alreadyFound = new HashMap<>();
         for (Sentence sentence : sentences) {
@@ -150,25 +151,32 @@ class Book implements Serializable {
                     }
                 }
             }
-        /*    for(String sentenceCharacter : characters){
-                if(alreadyFound.containsKey(sentenceCharacter))
-                    newCharacters.add(alreadyFound.get(sentenceCharacter));
-                else{
-                    for(String relationCharacter : this.getCharacters()){
-                        if(relationCharacter.contains(sentenceCharacter)){
-                            alreadyFound.put(sentenceCharacter, relationCharacter);
-                            newCharacters.add(relationCharacter);
-                        }
-                    }
-                }
-            }*/
             sentence.setAppearingCharacters(newCharacters);
         }
     }
 
+    void compareResults(HashMap<String, HashMap<String, String>> classified) {
+        int wrong = 0;
+        int correct = 0;
+        for (String char1 : classified.keySet()) {
+            HashMap<String, String> char1Entry = classified.get(char1);
+            for (String char2 : char1Entry.keySet()) {
+                if (this.containsCharacterRelation(char1, char2)) {
+                    if (this.getCharacterRelations(char1).get(char2).getAffinity().equals(char1Entry.get(char2)))
+                        correct++;
+                    else
+                        wrong++;
+                }
+            }
+        }
+        System.out.println("Correct: " + correct + "\tWrong: " + wrong);
 
-    
+    }
 
+
+    public void setSentences(ArrayList<Sentence> sentences) {
+        this.sentences = sentences;
+    }
 }
 
 

@@ -45,10 +45,10 @@ class Book implements Serializable {
         }
     }
 
-    /*public HashMap<String, HashMap<String, CharacterRelation>> getCharacterRelations() {
-        return characterRelations;
-    }
-    */
+	/*public HashMap<String, HashMap<String, CharacterRelation>> getCharacterRelations() {
+		return characterRelations;
+	}
+	*/
 
     public HashMap<String, CharacterRelation> getCharacterRelations(String character) {
         return this.characterRelations.getOrDefault(character, null);
@@ -99,7 +99,6 @@ class Book implements Serializable {
         }
         return false;
     }
-
 
 
     void addSentences(String booksPath) {

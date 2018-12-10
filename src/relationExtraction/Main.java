@@ -90,12 +90,11 @@ public class Main {
         //----------CLASSIFYING VIRGIN BOOK---------------------------
         //Now we try to classify a virgin book
         String bookPath = "./TrainingBooks/Ghosts.txt";
-        Book bookToAnalyze = new Book(bookPath,"---");
+        Book bookToAnalyze = new Book(bookPath, "---");
         HashMap<String, HashMap<String, String>> classifiedCharacters;
 
         bookToAnalyze.setSentences(BookAnalyzerHub.analyzeBook(bookPath));
-        if (nbm!=null)
-        {
+        if (nbm != null) {
             classifiedCharacters = nbm.classifyBook(bookToAnalyze);
             System.out.println(classifiedCharacters);
         }

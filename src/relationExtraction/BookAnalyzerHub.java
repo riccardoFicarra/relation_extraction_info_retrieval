@@ -22,8 +22,7 @@ import java.util.Properties;
 public class BookAnalyzerHub {
 
 
-    static ArrayList<Sentence> analyzeBook(String bookName)
-    {
+    static ArrayList<Sentence> analyzeBook(String bookName) {
         //Data structures
         ArrayList<Sentence> finalSentences = new ArrayList<>();
         int numSentences = 0;
@@ -47,8 +46,7 @@ public class BookAnalyzerHub {
         //Create arrayList of sentences
         ArrayList<String> sentenceArrayList = new ArrayList<>();
         //For each sentence of the book...
-        for (List<HasWord> sentenceAsList : dp)
-        {
+        for (List<HasWord> sentenceAsList : dp) {
             //Get string version of the sentence (everything is separated by whitespace)
             sentenceAsString = wordListToString(sentenceAsList);
             //Adding to arrayList
@@ -57,41 +55,37 @@ public class BookAnalyzerHub {
         numSentences = sentenceArrayList.size();
 
 
-
         //Now we analyze 2 sentences at a time in order to improve anaphora resolution when necessary
         boolean toResolve = false;
-        for(int i=0; i<numSentences; i++)
-        {
+        for (int i = 0; i < numSentences; i++) {
             String currentFinalSentence;
 
             //Getting NER resolution (Person, Organization, Location)
             sentenceAsNER = NERclassifier.classifyToString(sentenceArrayList.get(i));
             //If the flag is set, then we need to resolve anaphora for this sentence
             currentFinalSentence = sentenceArrayList.get(i);
-            /*if(toResolve==true)
-            {
-                toResolve = false;
-                String tmp = sentenceArrayList.get(i-1) + " " + sentenceArrayList.get(i);
-                String resolved = resolveAnaphora(tmp, pipeline);
-                Reader reader = new StringReader(resolved);
-                dp = new DocumentPreprocessor(reader);
-                List<String> sentenceList = new ArrayList<String>();
-                for (List<HasWord> sentence : dp)
-                {
-                    String sentenceString = SentenceUtils.listToString(sentence);
-                    sentenceList.add(sentenceString);
-                }
-                if(sentenceList.size()>=2)
-                    currentFinalSentence = sentenceList.get(1);
+			/*if(toResolve==true)
+			{
+				toResolve = false;
+				String tmp = sentenceArrayList.get(i-1) + " " + sentenceArrayList.get(i);
+				String resolved = resolveAnaphora(tmp, pipeline);
+				Reader reader = new StringReader(resolved);
+				dp = new DocumentPreprocessor(reader);
+				List<String> sentenceList = new ArrayList<String>();
+				for (List<HasWord> sentence : dp)
+				{
+					String sentenceString = SentenceUtils.listToString(sentence);
+					sentenceList.add(sentenceString);
+				}
+				if(sentenceList.size()>=2)
+					currentFinalSentence = sentenceList.get(1);
 
-            }*/
+			}*/
             //currentFinalSentence = resolveAnaphora(sentenceArrayList.get(i), pipeline);
 
             //If this is not the first sentence, check the NON-RESOLVED version of the phrase for if we need to resolve anaphora in the following phrase
-            if(i!=0)
-            {
-                if(sentenceAsNER.contains("PERSON"))
-                {
+            if (i != 0) {
+                if (sentenceAsNER.contains("PERSON")) {
                     toResolve = true;
                 }
             }
@@ -116,21 +110,18 @@ public class BookAnalyzerHub {
     }
 
 
-    private static String wordListToString(List<HasWord> sentence)
-    {
+    private static String wordListToString(List<HasWord> sentence) {
         StringBuilder builder = new StringBuilder();
 
-        for(HasWord word:sentence)
-        {
-            builder.append(word.toString()+" ");
+        for (HasWord word : sentence) {
+            builder.append(word.toString() + " ");
         }
 
         return builder.toString();
     }
 
 
-
-    private static String resolveAnaphora(String text, StanfordCoreNLP pipeline){
+    private static String resolveAnaphora(String text, StanfordCoreNLP pipeline) {
 
         Annotation doc = new Annotation(text);
         pipeline.annotate(doc);
@@ -148,7 +139,7 @@ public class BookAnalyzerHub {
 
             for (CoreLabel token : tokens) {
 
-                Integer corefClustId= token.get(CorefCoreAnnotations.CorefClusterIdAnnotation.class);
+                Integer corefClustId = token.get(CorefCoreAnnotations.CorefClusterIdAnnotation.class);
                 //System.out.println(token.word() +  " --> corefClusterID = " + corefClustId);
 
 
@@ -156,12 +147,12 @@ public class BookAnalyzerHub {
                 //System.out.println("matched chain = " + chain);
 
 
-                if(chain==null){
+                if (chain == null) {
                     resolved.add(token.word());
                     //System.out.println("Adding the same word "+token.word());
-                }else{
+                } else {
 
-                    int sentINdx = chain.getRepresentativeMention().sentNum -1;
+                    int sentINdx = chain.getRepresentativeMention().sentNum - 1;
                     //System.out.println("sentINdx :"+sentINdx);
                     CoreMap corefSentence = sentences.get(sentINdx);
                     List<CoreLabel> corefSentenceTokens = corefSentence.get(CoreAnnotations.TokensAnnotation.class);
@@ -180,13 +171,10 @@ public class BookAnalyzerHub {
                             newwords += matchedLabel.word() + " ";
 
                         }
-                    }
-
-                    else {
+                    } else {
                         resolved.add(token.word());
                         //System.out.println("token.word() : "+token.word());
                     }
-
 
 
                     //System.out.println("converting " + token.word() + " to " + newwords);
@@ -202,10 +190,10 @@ public class BookAnalyzerHub {
         }
 
 
-        String resolvedStr ="";
+        String resolvedStr = "";
         System.out.println();
         for (String str : resolved) {
-            resolvedStr+=str+" ";
+            resolvedStr += str + " ";
         }
         System.out.println(resolvedStr);
         return resolvedStr;
@@ -213,12 +201,10 @@ public class BookAnalyzerHub {
     }
 
 
-    public static void splittingTest(String text, StanfordCoreNLP pipeline)
-    {
+    public static void splittingTest(String text, StanfordCoreNLP pipeline) {
         String[] paragraphs = text.split("(?m)(?=^\\s{4})");
         System.out.println(paragraphs.length);
-        for(String par:paragraphs)
-        {
+        for (String par : paragraphs) {
             resolveAnaphora(par, pipeline);
         }
     }

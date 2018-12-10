@@ -35,8 +35,7 @@ public class Sentence implements Serializable {
         this.appearingCharacters = appearingCharacters;
     }
 
-    public Sentence(String pureSentence, String sentenceAsPOS, String sentenceAsNER)
-    {
+    public Sentence(String pureSentence, String sentenceAsPOS, String sentenceAsNER) {
 
         this.appearingCharacters = new HashSet<>();
         //Copying original sentence
@@ -48,37 +47,29 @@ public class Sentence implements Serializable {
         String[] wordArray = pureSentence.split("\\s+");
         String[] POSArray = sentenceAsPOS.split("\\s+");
         String[] NERArray = sentenceAsNER.split("\\s+");
-        for(int i=0; i<wordArray.length; i++)
-        {
-            try
-            {
+        for (int i = 0; i < wordArray.length; i++) {
+            try {
                 String[] POSelement = POSArray[i].split("_");
                 String[] NERelement = NERArray[i].split("/");
                 wordList.add(new Word(wordArray[i], POSelement[1], NERelement[1]));
                 //Checking if we need to add a story character
-                if(NERelement[1].equals("PERSON"))
-                {
-                    if(toAdd == false)
-                    {
+                if (NERelement[1].equals("PERSON")) {
+                    if (toAdd == false) {
                         //First character name that has been found
                         firstName = NERelement[0];
                         toAdd = true;
                         appearingCharacters.add(NERelement[0]);
-                    }
-                    else
-                    {
+                    } else {
                         //Second consecutive character name that has been found: probably it is its surname or something
                         toAdd = false;
-                        if(!firstName.isEmpty())
-                            appearingCharacters.add(firstName + " " +NERelement[0]);
+                        if (!firstName.isEmpty())
+                            appearingCharacters.add(firstName + " " + NERelement[0]);
                         appearingCharacters.add(NERelement[0]);
                     }
                     //System.out.println(NERelement[0]+" is a person");
                     appearingCharacters.add(NERelement[0]);
                 }
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 //In case something goes wrong, just set the POS and NER fields to empty
                 System.out.println("Errore");
                 wordList.add(new Word(wordArray[i], "Nothing", "Nothing"));
@@ -87,11 +78,9 @@ public class Sentence implements Serializable {
     }
 
     //This function checks if the sentence contains a specific word
-    public boolean containsWord(String word)
-    {
-        for(Word w : wordList)
-        {
-            if(w.getText().trim().equals(word.trim()))
+    public boolean containsWord(String word) {
+        for (Word w : wordList) {
+            if (w.getText().trim().equals(word.trim()))
                 return true;
         }
         return false;

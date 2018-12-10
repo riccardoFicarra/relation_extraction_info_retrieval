@@ -30,31 +30,19 @@ public class Word implements Serializable {
         return ner;
     }
 
-    boolean isNotStopword(String word, HashSet<String> stopWordSet)
-    {
+    boolean isNotStopword(String word, HashSet<String> stopWordSet) {
         word = word.trim();
         word = word.toLowerCase();
-        if(stopWordSet.contains(word))
-            return false;
-        else
-            return true;
+        return !stopWordSet.contains(word);
     }
 
-    boolean isNotPunctuation(String word)
-    {
+    boolean isNotPunctuation(String word) {
         word = word.trim();
-        if (Pattern.matches("\\p{Punct}", word))
-            return false;
-        else
-            return true;
+        return !Pattern.matches("\\p{Punct}", word);
     }
 
-    boolean isNotNumber(String word)
-    {
+    boolean isNotNumber(String word) {
         word = word.trim();
-        if(Pattern.matches("\\d+", word))
-            return false;
-        else
-            return true;
+        return !Pattern.matches("\\d+", word);
     }
 }

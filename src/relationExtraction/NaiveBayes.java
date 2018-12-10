@@ -20,6 +20,7 @@ class NaiveBayes {
      */
     private HashMap<String, HashMap<String, Double>> probabilities;
     private HashMap<String, Double> labelProbabilities;     //P(label) for each label
+
     enum RelationLabel {affinity, coarse, fine}
 
 
@@ -38,16 +39,16 @@ class NaiveBayes {
      * @return outer key is label, value is the list of sentences with that value
      */
    /*
-    private HashMap<String, List<Sentence>> buildSentenceDataset(HashMap<String, Book> books) {
+	private HashMap<String, List<Sentence>> buildSentenceDataset(HashMap<String, Book> books) {
 
-        //Dataset Building
-        HashMap<String, List<Sentence>> labeledSentences = new HashMap<>();
-        for (Book book : books.values()) {
-            HashMap<String, List<Sentence>> bookLabeledSentences = book.buildRelationSentence(relationlabel);
-            mergeLabeledSentences(labeledSentences, bookLabeledSentences);
-        }
-        return labeledSentences;
-    }*/
+		//Dataset Building
+		HashMap<String, List<Sentence>> labeledSentences = new HashMap<>();
+		for (Book book : books.values()) {
+			HashMap<String, List<Sentence>> bookLabeledSentences = book.buildRelationSentence(relationlabel);
+			mergeLabeledSentences(labeledSentences, bookLabeledSentences);
+		}
+		return labeledSentences;
+	}*/
 
     void buildModel(HashMap<String, Book> books, HashSet<String> stopWordSet) {
         HashMap<String, HashMap<String, Double>> probabilities = new HashMap<>();
@@ -94,7 +95,7 @@ class NaiveBayes {
             }
 
             //Calculating P(label) for the current label
-            labelProbabilities.put(label, (dividend/totalNumOfWordOccurencies));
+            labelProbabilities.put(label, (dividend / totalNumOfWordOccurencies));
         }
         this.probabilities = probabilities;
         this.labelProbabilities = labelProbabilities;
@@ -140,33 +141,27 @@ class NaiveBayes {
     }
 
     //Given a sentence, returns its label
-    private String calculateSentenceLabel(Sentence sentenceToLabel)
-    {
+    private String calculateSentenceLabel(Sentence sentenceToLabel) {
         //NOTE: summing logs instead of multiplying probs, in order to avoid underflow
         HashMap<String, Double> labelProbability = new HashMap<>();
 
         //Iterating through all possible labels
-        for (String label : this.labelProbabilities.keySet())
-        {
+        for (String label : this.labelProbabilities.keySet()) {
             //Adding the label probability first
             labelProbability.put(label, Math.log10(labelProbabilities.get(label)));
             //Iterating through all words of the label
             HashMap<String, Double> wordProbs = this.probabilities.get(label);
-            for(String word : wordProbs.keySet())
-            {
+            for (String word : wordProbs.keySet()) {
                 double tmpValue;
-                if(sentenceToLabel.containsWord(word))
-                {
+                if (sentenceToLabel.containsWord(word)) {
                     //If the sentence contains this word, then we add its probability
                     tmpValue = labelProbability.get(label);
                     tmpValue = tmpValue + Math.log10(wordProbs.get(word));
                     labelProbability.put(label, tmpValue);
-                }
-                else
-                {
+                } else {
                     //If the sentence does NOT contain this word, then add 1-probability
                     tmpValue = labelProbability.get(label);
-                    tmpValue = tmpValue + Math.log10(1-wordProbs.get(word));
+                    tmpValue = tmpValue + Math.log10(1 - wordProbs.get(word));
                     labelProbability.put(label, tmpValue);
                 }
 
@@ -179,15 +174,12 @@ class NaiveBayes {
         double max = 0;
         String maxLabel = "NIENTE";
 
-        for(String label : labelProbability.keySet())
-        {
-            if (labelProbability.get(label) > max || maxLabel.equals("NIENTE"))
-            {
+        for (String label : labelProbability.keySet()) {
+            if (labelProbability.get(label) > max || maxLabel.equals("NIENTE")) {
                 max = labelProbability.get(label);
                 maxLabel = label;
             }
         }
-
 
 
         return maxLabel;

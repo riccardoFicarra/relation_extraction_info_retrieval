@@ -67,20 +67,28 @@ public class Sentence implements Serializable {
                     }
                     else
                     {
-                        //Second consecutive character name that has been found: probably it is its surname or something
-                        toAdd = false;
+                        //Second consecutive character name that has been found: probably it is its surname
+                        //toAdd = false;
                         if(!firstName.isEmpty())
+                        {
                             appearingCharacters.add(firstName + " " +NERelement[0]);
-                        appearingCharacters.add(NERelement[0]);
+                            appearingCharacters.remove(firstName);
+                            firstName = firstName + " " + NERelement[0];
+                        }
+                        //appearingCharacters.add(NERelement[0]);
                     }
                     //System.out.println(NERelement[0]+" is a person");
-                    appearingCharacters.add(NERelement[0]);
+                    //appearingCharacters.add(NERelement[0]);
+                }
+                else
+                {
+                    toAdd = false;
                 }
             }
             catch(Exception e)
             {
                 //In case something goes wrong, just set the POS and NER fields to empty
-                System.out.println("Errore");
+                System.out.println("Error in sentence Parsing!");
                 wordList.add(new Word(wordArray[i], "Nothing", "Nothing"));
             }
         }

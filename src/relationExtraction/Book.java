@@ -121,7 +121,7 @@ class Book implements Serializable {
      *                  An hashmap avoids repeating useless work for already found couples.
      */
     private void recomputeCharacters(ArrayList<Sentence> sentences) {
-        HashMap<String, String> alreadyFound = new HashMap<>();
+
         for (Sentence sentence : sentences) {
             HashSet<String> newCharacters = new HashSet<>();
             ArrayList<String> characters = new ArrayList<>(sentence.getAppearingCharacters());
@@ -131,8 +131,11 @@ class Book implements Serializable {
                     String char2 = characters.get(j);
                     String relChar1 = "";
                     String relChar2 = "";
-                    if (alreadyFound.containsKey(char1) && alreadyFound.containsKey(char2))
-                        continue;
+
+                    //For each gold standard character, check if it can be matched with what was found in the sentence
+                    String[] decomposedChar1 = char1.split("\\s+");
+                    String[] decomposedChar2 = char2.split("\\s+");
+                    //  First, try to match the full name...
                     for (String relationCharacter : this.getCharacters()) {
                         if (relationCharacter.indexOf(char1) != -1) {
                             relChar1 = relationCharacter;
@@ -143,14 +146,48 @@ class Book implements Serializable {
                         if (!relChar1.isEmpty() && !relChar2.isEmpty())
                             break;
                     }
+                    //  If we could not match the names, we try to match their composing parts
+                    if(relChar1.isEmpty() && decomposedChar1.length>1)
+                    {
+                        for(String part : decomposedChar1)
+                        {
+                            for (String relationCharacter : this.getCharacters())
+                            {
+                                if (relationCharacter.indexOf(part) != -1)
+                                {
+                                    relChar1 = relationCharacter;
+                                    break;
+                                }
+                            }
+                            if(!relChar1.isEmpty())
+                                break;
+                        }
+                    }
+                    if(relChar2.isEmpty() && decomposedChar2.length>1)
+                    {
+                        for(String part : decomposedChar2)
+                        {
+                            for (String relationCharacter : this.getCharacters())
+                            {
+                                if (relationCharacter.indexOf(part) != -1)
+                                {
+                                    relChar2 = relationCharacter;
+                                    break;
+                                }
+                            }
+                            if(!relChar2.isEmpty())
+                                break;
+                        }
+                    }
+                    //Add the corrected characters names to the new sentence characters map
                     if (!relChar1.equals(relChar2) && this.containsCharacterRelation(relChar1, relChar2)) {
-                        alreadyFound.put(char1, relChar1);
-                        alreadyFound.put(char2, relChar2);
                         newCharacters.add(relChar1);
                         newCharacters.add(relChar2);
+                        System.out.println("I substituted '"+char1+"'--->'"+relChar1+"'      and      '"+char2+"'--->'"+relChar2+"'");
                     }
                 }
             }
+            //Overriding the characters map of the sentence with the substituted one
             sentence.setAppearingCharacters(newCharacters);
         }
     }

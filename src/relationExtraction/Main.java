@@ -11,8 +11,10 @@ public class Main {
     /**
      * @param args [0] -> path of character relations file
      *             [1] -> path of books folder
-     *             [2] -> options: p = parse, f = force overwrite, b = build Naive Bayes model, l = load Naive Bayes model from file
-     *             [3] [only with b or l option] label type to use in classifier. {affinity, coarse, fine}
+     *             [2] -> options: p = parse, f = force overwrite, b = build Naive Bayes model with all books, l = load
+     *             Naive Bayes model from file
+     *             x -> do 10-fold validation
+     *             [3] [only with b, x or l option] label type to use in classifier. {affinity, coarse, fine}
      */
     public static void main(String[] args) {
 
@@ -25,7 +27,7 @@ public class Main {
         String bookOutFile = "booksJson";
         String bookInFile = "booksJson";
         String modelFileName = "NaiveBayesModel.json";
-        int maxFolds = 10;
+        int maxFolds = 3;
 
         //Initializing Stop Word set
         stopWordSet = OurUtils.prepareStopWordList("./stopwords.txt");
@@ -95,7 +97,8 @@ public class Main {
              value = count;
              */
             HashMap<String, HashMap<String, Integer>> confusionMatrix = new HashMap<>();
-            for (int fold = 0; fold < maxFolds; maxFolds++) {
+            String total = "_total";
+            for (int fold = 0; fold < maxFolds; fold++) {
 
                 //Model building with only one part of set
                 nbm = new NaiveBayes(labelType);
@@ -112,26 +115,36 @@ public class Main {
                         book.compareResultsCumulative(classified, confusionMatrix);
                     }
                 }
-
+                System.out.println("Completed fold #" + (fold + 1));
+            }
+            //confusion matrix is complete
+            for (String label : confusionMatrix.keySet()) {
+                if (label.equals("NR") || label.equals(total)) continue;
+                double precision = (double) confusionMatrix.get(label).get(label) //correctly classified
+                        / confusionMatrix.get(total).get(label);   //total classified with that label
+                double recall = (double) confusionMatrix.get(label).get(label) //correctly classified
+                        / confusionMatrix.get(label).get(total);   //total actually with that label
+                double fmeasure = 2 * precision * recall / (precision + recall);
+                System.out.println("Label\t" + label + " precision: " + precision + " recall " + recall + " F measure: " + fmeasure);
             }
 
+        } else {
+
+
+            //----------CLASSIFYING VIRGIN BOOK---------------------------
+            //Now we try to classify a virgin book
+            String bookPath = "./TrainingBooks/Ghosts.txt";
+            Book bookToAnalyze = new Book(bookPath, "---");
+            HashMap<String, HashMap<String, String>> classifiedCharacters;
+
+            bookToAnalyze.setSentences(BookAnalyzerHub.analyzeBook(bookPath));
+            if (nbm != null) {
+                classifiedCharacters = nbm.classifyBook(bookToAnalyze);
+                System.out.println(classifiedCharacters);
+            }
+
+
         }
-
-
-        //----------CLASSIFYING VIRGIN BOOK---------------------------
-        //Now we try to classify a virgin book
-        String bookPath = "./TrainingBooks/Ghosts.txt";
-        Book bookToAnalyze = new Book(bookPath,"---");
-        HashMap<String, HashMap<String, String>> classifiedCharacters;
-
-        bookToAnalyze.setSentences(BookAnalyzerHub.analyzeBook(bookPath));
-        if (nbm!=null)
-        {
-            classifiedCharacters = nbm.classifyBook(bookToAnalyze);
-            System.out.println(classifiedCharacters);
-        }
-
-
     }
 
     private static void classifyUpdateConfusionMatrix(Book book,

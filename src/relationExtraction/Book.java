@@ -183,7 +183,7 @@ class Book implements Serializable {
                     if (!relChar1.equals(relChar2) && this.containsCharacterRelation(relChar1, relChar2)) {
                         newCharacters.add(relChar1);
                         newCharacters.add(relChar2);
-                        System.out.println("I substituted '"+char1+"'--->'"+relChar1+"'      and      '"+char2+"'--->'"+relChar2+"'");
+                        //System.out.println("I substituted '"+char1+"'--->'"+relChar1+"'      and      '"+char2+"'--->'"+relChar2+"'");
                     }
                 }
             }

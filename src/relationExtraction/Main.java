@@ -65,6 +65,7 @@ public class Main {
             }
             //printCharacters(books);
         }
+
         // NAIVE BAYES MODEL
         NaiveBayes nbm = null;
         if (options.contains("b")) {
@@ -89,7 +90,7 @@ public class Main {
 
         //----------CLASSIFYING VIRGIN BOOK---------------------------
         //Now we try to classify a virgin book
-        String bookPath = "./TrainingBooks/Ghosts.txt";
+        String bookPath = "./TrainingBooks/Dr. Jekyll and Mr. Hyde.txt";
         Book bookToAnalyze = new Book(bookPath,"---");
         HashMap<String, HashMap<String, String>> classifiedCharacters;
 

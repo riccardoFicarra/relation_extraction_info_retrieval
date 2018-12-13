@@ -66,7 +66,7 @@ class NaiveBayes {
                                     .filter(w -> w.isNotPunctuation(w.getText()))
                                     .filter(w -> w.isNotNumber(w.getText()))
                                     .filter(w -> w.isNotStopword(w.getText(), stopWordSet))
-                                    .map(Word::getText/*additional processing here*/)
+                                    .map(Word::getLemma/*additional processing here*/)
                                     .forEach(w -> addToModel(probabilities, count, w, label, vocabulary));
                         }
                     }
@@ -216,7 +216,9 @@ class NaiveBayes {
                 String[] character = new String[2];
                 Iterator<String> itr = sentence.getAppearingCharacters().iterator();
                 character[0] = itr.next();
+                character[0] = character[0].toLowerCase();
                 character[1] = itr.next();
+                character[1] = character[1].toLowerCase();
                 //function to populate hashmap
                 addToCounter(character[0], character[1], label, counter);
             }

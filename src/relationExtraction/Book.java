@@ -192,21 +192,80 @@ class Book implements Serializable {
         }
     }
 
-    void compareResults(HashMap<String, HashMap<String, String>> classified) {
-        int wrong = 0;
-        int correct = 0;
+    /*returns the confusion matrix of the book
+     * outer key: label1
+     * inner key: label2
+     * value: number of character pairs identified with label1 by the classifier that have label2 in the gold standard*/
+    void compareResultsCumulative(HashMap<String, HashMap<String, String>> classified, HashMap<String,
+            HashMap<String, Integer>> confusionMatrix) {
         for (String char1 : classified.keySet()) {
             HashMap<String, String> char1Entry = classified.get(char1);
             for (String char2 : char1Entry.keySet()) {
                 if (this.containsCharacterRelation(char1, char2)) {
-                    if (this.getCharacterRelations(char1).get(char2).getAffinity().equals(char1Entry.get(char2)))
-                        correct++;
-                    else
-                        wrong++;
+                    String goldLabel = this.getCharacterRelations(char1).get(char2).getAffinity();
+                    String predictedLabel = char1Entry.get(char2);
+                    addToConfusionMatrix(confusionMatrix, goldLabel, predictedLabel);
                 }
             }
         }
-        System.out.println("Correct: " + correct + "\tWrong: " + wrong);
+
+    }
+
+    /*returns the confusion matrix of the book
+     * outer key: label1
+     * inner key: label2
+     * value: number of character pairs identified with label1 by the classifier that have label2 in the gold standard*/
+    HashMap<String, HashMap<String, Integer>> compareResults(HashMap<String, HashMap<String, String>> classified) {
+        HashMap<String, HashMap<String, Integer>> confusionMatrix = new HashMap<>();
+        for (String char1 : classified.keySet()) {
+            HashMap<String, String> char1Entry = classified.get(char1);
+            for (String char2 : char1Entry.keySet()) {
+                if (this.containsCharacterRelation(char1, char2)) {
+                    String goldLabel = this.getCharacterRelations(char1).get(char2).getAffinity();
+                    String predictedLabel = char1Entry.get(char2);
+                    addToConfusionMatrix(confusionMatrix, goldLabel, predictedLabel);
+                }
+            }
+        }
+        return confusionMatrix;
+
+    }
+
+    /*
+    outer key: goldLabel
+    inner key: predicted label
+    the outer HashMap contains an entry (another hashmap) with key "_total" that keeps track of the total number of
+    pairs for each predictedLabel.
+    the inner hashMaps have an entry (just a kv pair) with key "_total" that keeps track of the total number of pairs
+     for each goldLabel.
+     */
+    private void addToConfusionMatrix(HashMap<String, HashMap<String, Integer>> confusionMatrix, String goldLabel,
+                                      String predictedLabel) {
+        String total = "_total";
+        if (!confusionMatrix.containsKey(total))
+            confusionMatrix.put(total, new HashMap<>());
+        //init gold label entry if needed
+        if (!confusionMatrix.containsKey(goldLabel)) {
+            HashMap<String, Integer> goldLabelEntry = new HashMap<>();
+            goldLabelEntry.put(total, 0);
+            confusionMatrix.put(goldLabel, goldLabelEntry);
+        }
+        HashMap<String, Integer> goldLabelEntry = confusionMatrix.get(goldLabel);
+        HashMap<String, Integer> totalEntry = confusionMatrix.get(total);
+        if (!goldLabelEntry.containsKey(predictedLabel)) {
+            //if predictedLabel has never been added before
+            goldLabelEntry.put(predictedLabel, 0);
+        }
+        if (!totalEntry.containsKey(predictedLabel)) {
+            //also create entry in the predictedLabel total hashmap
+            totalEntry.put(predictedLabel, 0);
+        }
+        //update the counter
+        goldLabelEntry.put(predictedLabel, goldLabelEntry.get(predictedLabel) + 1);
+        //update counter for total with that goldLabel
+        goldLabelEntry.put(total, goldLabelEntry.get(total) + 1);
+        //update counter for total with that predictedLabel
+        totalEntry.put(predictedLabel, totalEntry.get(predictedLabel) + 1);
 
     }
 

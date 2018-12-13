@@ -4,9 +4,7 @@ package relationExtraction;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -27,7 +25,7 @@ public class Main {
         String bookOutFile = "booksJson";
         String bookInFile = "booksJson";
         String modelFileName = "NaiveBayesModel.json";
-
+        int maxFolds = 10;
 
         //Initializing Stop Word set
         stopWordSet = OurUtils.prepareStopWordList("./stopwords.txt");
@@ -73,6 +71,8 @@ public class Main {
             nbm.saveModelToFile(modelFileName);
         } else if (options.contains("l")) {
             nbm = new NaiveBayes(modelFileName, labelType);
+
+
             for (Book book : books.values()) {
                 HashMap<String, HashMap<String, String>> classified = nbm.classifyBook(book);
                 System.out.println(book.getTitle());
@@ -84,6 +84,37 @@ public class Main {
                 book.compareResults(classified);
             }
             System.out.println("Done");
+        } else if (options.contains("x")) {
+
+            int skip = books.size() / maxFolds + 1;
+            ArrayList<List<Book>> splits = new ArrayList<>(maxFolds);
+            for (int fold = 0; fold < maxFolds; fold++)
+                splits.add(books.values().stream().skip(fold * skip).limit(skip).collect(Collectors.toList()));
+            /*outer key: label1
+             inner key: label2
+             value = count;
+             */
+            HashMap<String, HashMap<String, Integer>> confusionMatrix = new HashMap<>();
+            for (int fold = 0; fold < maxFolds; maxFolds++) {
+
+                //Model building with only one part of set
+                nbm = new NaiveBayes(labelType);
+                nbm.buildModel(getHashMap(splits.get(fold)), stopWordSet);
+
+                for (int split = 0; split < splits.size(); split++) {
+                    if (split == fold)
+                        //skip classification of training set
+                        continue;
+                    for (Book book : splits.get(split)) {
+                        //classifyUpdateConfusionMatrix(book, confusionMatrix, nbm);
+                        HashMap<String, HashMap<String, String>> classified = nbm.classifyBook(book);
+                        //compute confusion matrix
+                        book.compareResultsCumulative(classified, confusionMatrix);
+                    }
+                }
+
+            }
+
         }
 
 
@@ -100,6 +131,13 @@ public class Main {
             System.out.println(classifiedCharacters);
         }
 
+
+    }
+
+    private static void classifyUpdateConfusionMatrix(Book book,
+                                                      HashMap<String, HashMap<String, Integer>> confusionMatrix,
+                                                      NaiveBayes nbm) {
+        HashMap<String, HashMap<String, String>> classified = nbm.classifyBook(book);
 
     }
 
@@ -121,5 +159,12 @@ public class Main {
                 System.out.println(e.getMessage());
             }
         }
+    }
+
+    private static HashMap<String, Book> getHashMap(List<Book> books) {
+        HashMap<String, Book> temp = new HashMap<>();
+        for (Book book : books)
+            temp.put(book.getTitle(), book);
+        return temp;
     }
 }

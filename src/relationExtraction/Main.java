@@ -52,15 +52,25 @@ public class Main {
             /*books.values().forEach(b -> {
                 System.out.println(b.getTitle());
                 ObjectIO.writeBookToFile(processedBooksPath,b);});*/
-            books.values().stream()
-                    .filter(b -> !listfiles.contains(b.getTitle()))
+            for (Book book : books.values()) {
+                if (!listfiles.contains(book.getTitle() + ".json")) {
+                    book.addSentences(booksPath);
+                    if (book.getSentences() != null) {
+                        ObjectIO.writeBookToFile(processedBooksPath, book);
+                    } else {
+                        System.err.println("ERROR WITH SENTENCES OF BOOK " + book.getTitle());
+                    }
+                }
+            }
+   /*         books.values().stream()
+                    .filter(b -> !listfiles.contains(b.getTitle()+".json"))
                     .forEach(b -> {
                         b.addSentences(booksPath);
                         if (b.getSentences() != null) {
                             //only write to file the ones where parsing was completed
                     ObjectIO.writeBookToFile(processedBooksPath, b);
                         }
-                    });
+                    });*/
 
         } else {
             try {
@@ -108,7 +118,7 @@ public class Main {
 
                 for (int split = 0; split < splits.size(); split++) {
                     if (split == fold)
-                        //skip classification of training set
+                        //skip test set during training
                         continue;
                     trainingBooks.addAll(splits.get(split));
                 }

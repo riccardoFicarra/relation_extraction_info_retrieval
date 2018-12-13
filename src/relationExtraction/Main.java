@@ -37,26 +37,31 @@ public class Main {
         if (options.contains("p")) {
             //Parsing option
             File booksFile = new File(processedBooksPath);
-            File[] listfiles = booksFile.listFiles();
-            boolean bookExists = listfiles != null && listfiles.length > 0;
-            String choice = "";
+            HashSet<String> listfiles =
+                    Arrays.stream(booksFile.listFiles()).map(File::getName).collect(Collectors.toCollection(HashSet::new));
+            /*String choice = "";
             if (bookExists && !options.contains("f")) {
                 System.err.println("CAUTION: DO YOU WANT TO OVERWRITE THE FILE? y/n");
                 Scanner scanner = new Scanner(System.in);
                 choice = scanner.nextLine();
             }
-            if (!bookExists || options.contains("f") || choice.equals("y")) {
-                CharacterRelationParser crp = new CharacterRelationParser(crFilePath);
-                books = crp.parseCharacterRelations();
-				/*books.values().forEach(b -> {
-					System.out.println(b.getTitle());
-					ObjectIO.writeBookToFile(processedBooksPath,b);});*/
+            */
 
-                books.values().forEach(b -> {
-                    b.addSentences(booksPath);
+            CharacterRelationParser crp = new CharacterRelationParser(crFilePath);
+            books = crp.parseCharacterRelations();
+            /*books.values().forEach(b -> {
+                System.out.println(b.getTitle());
+                ObjectIO.writeBookToFile(processedBooksPath,b);});*/
+            books.values().stream()
+                    .filter(b -> !listfiles.contains(b.getTitle()))
+                    .forEach(b -> {
+                        b.addSentences(booksPath);
+                        if (b.getSentences() != null) {
+                            //only write to file the ones where parsing was completed
                     ObjectIO.writeBookToFile(processedBooksPath, b);
-                });
-            }
+                        }
+                    });
+
         } else {
             try {
                 books = ObjectIO.readBooksFromFile(processedBooksPath);
@@ -98,34 +103,44 @@ public class Main {
              */
             HashMap<String, HashMap<String, Integer>> confusionMatrix = new HashMap<>();
             String total = "_total";
+            ArrayList<Book> trainingBooks = new ArrayList<>();
             for (int fold = 0; fold < maxFolds; fold++) {
-
-                //Model building with only one part of set
-                nbm = new NaiveBayes(labelType);
-                nbm.buildModel(getHashMap(splits.get(fold)), stopWordSet);
 
                 for (int split = 0; split < splits.size(); split++) {
                     if (split == fold)
                         //skip classification of training set
                         continue;
-                    for (Book book : splits.get(split)) {
-                        //classifyUpdateConfusionMatrix(book, confusionMatrix, nbm);
+                    trainingBooks.addAll(splits.get(split));
+                }
+                //Model building with only one part of set
+                nbm = new NaiveBayes(labelType);
+                nbm.buildModel(getHashMap(trainingBooks), stopWordSet);
+
+
+                for (Book book : splits.get(fold)) {
                         HashMap<String, HashMap<String, String>> classified = nbm.classifyBook(book);
                         //compute confusion matrix
                         book.compareResultsCumulative(classified, confusionMatrix);
                     }
-                }
+
                 System.out.println("Completed fold #" + (fold + 1));
             }
             //confusion matrix is complete
-            for (String label : confusionMatrix.keySet()) {
-                if (label.equals("NR") || label.equals(total)) continue;
-                double precision = (double) confusionMatrix.get(label).get(label) //correctly classified
-                        / confusionMatrix.get(total).get(label);   //total classified with that label
-                double recall = (double) confusionMatrix.get(label).get(label) //correctly classified
-                        / confusionMatrix.get(label).get(total);   //total actually with that label
-                double fmeasure = 2 * precision * recall / (precision + recall);
-                System.out.println("Label\t" + label + " precision: " + precision + " recall " + recall + " F measure: " + fmeasure);
+            for (String goldLabel : confusionMatrix.keySet()) {
+                if (goldLabel.equals("NR") || goldLabel.equals(total)) continue;
+                if (confusionMatrix.get(goldLabel).containsKey(goldLabel)) {
+                    double precision = (double) confusionMatrix.get(goldLabel).get(goldLabel) //correctly classified
+                            / confusionMatrix.get(total).get(goldLabel);   //total classified with that label
+                    double recall = (double) confusionMatrix.get(goldLabel).get(goldLabel) //correctly classified
+                            / confusionMatrix.get(goldLabel).get(total);   //total actually with that label
+                    double fmeasure = 2 * precision * recall / (precision + recall);
+                    System.out.println("Label\t" + goldLabel + " precision: " + precision + " recall :" + recall + " F " +
+                            "measure: " + fmeasure);
+                } else {
+                    //in case no sentences have been labeled with a certain label
+                    System.out.println("Label\t" + goldLabel + " precision: 0 recall : 0 F" +
+                            " measure: 0");
+                }
             }
 
         } else {

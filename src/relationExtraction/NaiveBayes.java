@@ -220,17 +220,20 @@ class NaiveBayes {
                 //function to populate hashmap
                 addToCounter(character[0], character[1], label, counter);
             }
-        }
-        //fill map with most frequent label.
-        HashMap<String, HashMap<String, String>> classifiedChars = new HashMap<>();
-        for (String char1 : counter.keySet()) {
-            for (String char2 : counter.get(char1).keySet()) {
-                HashMap<String, String> temp = new HashMap<>();
-                temp.put(char2, counter.get(char1).get(char2).getMaxLabel());
-                classifiedChars.put(char1, temp);
+
+            //fill map with most frequent label.
+            HashMap<String, HashMap<String, String>> classifiedChars = new HashMap<>();
+            for (String char1 : counter.keySet()) {
+                for (String char2 : counter.get(char1).keySet()) {
+                    HashMap<String, String> temp = new HashMap<>();
+                    temp.put(char2, counter.get(char1).get(char2).getMaxLabel());
+                    classifiedChars.put(char1, temp);
+                }
             }
+            return classifiedChars;
+        } else {
+            return new HashMap<>();
         }
-        return classifiedChars;
     }
 
     //function that increases the label counter between two characters

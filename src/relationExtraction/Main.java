@@ -15,6 +15,7 @@ public class Main {
      *             Naive Bayes model from file
      *             x -> do 10-fold validation
      *             [3] [only with b, x or l option] label type to use in classifier. {affinity, coarse, fine}
+     *             [4] [only with x] number of folds for n-fold validation
      */
     public static void main(String[] args) {
 
@@ -22,12 +23,12 @@ public class Main {
         String crFilePath = args[0];
         String booksPath = args[1];    //must end with / or \ (win or unix)
         String options = args.length >= 3 ? args[2] : "";
-        String labelType = args.length == 4 ? args[3] : null;
+        String labelType = args.length >= 4 ? args[3] : null;
         String processedBooksPath = "processedBooks/";
         String bookOutFile = "booksJson";
         String bookInFile = "booksJson";
         String modelFileName = "NaiveBayesModel.json";
-        int maxFolds = 3;
+        int maxFolds = args.length >= 5 ? Integer.parseInt(args[4]) : 0;
 
         //Initializing Stop Word set
         stopWordSet = OurUtils.prepareStopWordList("./stopwords.txt");

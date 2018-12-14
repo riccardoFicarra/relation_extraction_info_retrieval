@@ -19,7 +19,6 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 
-import javax.sound.midi.SysexMessage;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -28,8 +27,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 public class BookAnalyzerHub {
@@ -58,8 +55,8 @@ public class BookAnalyzerHub {
         System.out.println("Analyzing book " + bookName);
 
         // Initialize the POS tagger and the NER classifier
-        MaxentTagger POStagger = new MaxentTagger("./english-bidirectional-distsim.tagger");
-        AbstractSequenceClassifier NERclassifier = CRFClassifier.getClassifierNoExceptions("./english.all.3class.distsim.crf.ser.gz");
+        MaxentTagger POStagger = new MaxentTagger("english-bidirectional-distsim.tagger");
+        AbstractSequenceClassifier NERclassifier = CRFClassifier.getClassifierNoExceptions("english.all.3class.distsim.crf.ser.gz");
 
         //Create arrayList of sentences
         sentenceArrayList = new ArrayList<>();
@@ -88,13 +85,7 @@ public class BookAnalyzerHub {
 
             //checking if current sentence contains pronouns
             if (containsPronouns(sentenceArrayList.get(i), pronouns)) {
-                if(sentenceArrayList.get(i).contains("Gutenberg")) {
-                    pronounPresenceCurr = false;
-                }
-                else {
-                    pronounPresenceCurr = true;
-                }
-
+                pronounPresenceCurr = true;
             }
             // if previous sentence had people in it
             if (personPresencePrev == true && anaphora != 0) {
@@ -129,14 +120,34 @@ public class BookAnalyzerHub {
 
             // executing anaphora resolution
             if (sentencesForAnaphora != null) {
-                switch anaphora{
-                    case 1:
-                        resultFromAnaphora = ApplyHobbsAlgorithm(sentencesForAnaphora, pipeline);
-                        for(int j = 0; j < resultFromAnaphora.length; j++) {
-                            processedSentenceArrayList.add(i-1+j, resultFromAnaphora[j]);
-                        }
-                        break;
+                try {
+                    switch (anaphora) {
 
+                        case 1:
+                            resultFromAnaphora = ApplyHobbsAlgorithm(sentencesForAnaphora, pipeline);
+                            for (int j = 0; j < resultFromAnaphora.length; j++) {
+                                processedSentenceArrayList.add(i - 1 + j, resultFromAnaphora[j]);
+                            }
+                            break;
+
+                        case 2:
+                            String resolved = resolveAnaphora(sentencesForAnaphora, pipeline);
+                            Reader reader = new StringReader(resolved);
+                            dp = new DocumentPreprocessor(reader);
+                            List<String> sentenceList = new ArrayList<>();
+                            for (List<HasWord> sentence : dp) {
+                                String sentenceString = SentenceUtils.listToString(sentence);
+                                sentenceList.add(sentenceString);
+                            }
+                            for (int j = 0; j < sentenceList.size(); j++) {
+                                processedSentenceArrayList.add(i - 1 + j, sentenceList.get(j));
+                            }
+                            break;
+                    }
+                }
+                catch (Exception e){
+                    processedSentenceArrayList.add(i - 1, sentenceArrayList.get(i - 1));
+                    processedSentenceArrayList.add(i, sentenceArrayList.get(i));
                 }
 
             }
@@ -146,13 +157,8 @@ public class BookAnalyzerHub {
                 //checking if current phrase contains people
                 if(sentenceAsNER.contains("PERSON"))
                 {
-                    if(sentenceArrayList.get(i).contains("Gutenberg")) {
-                        personPresencePrev = false;
-                    }
-                    else {
-                        // this means that next sentence should be processed by anaphora resolver if contains pronouns
-                        personPresencePrev = true;
-                    }
+                    // this means that next sentence should be processed by anaphora resolver if contains pronouns
+                    personPresencePrev = true;
                 }
                 // updating previous sentence pronoun presence flag
                 pronounPresencePrev = pronounPresenceCurr;
@@ -199,7 +205,7 @@ public class BookAnalyzerHub {
 
 
 
-    private static String resolveAnaphora(String text, StanfordCoreNLP pipeline){
+    private static String resolveAnaphora(String text, StanfordCoreNLP pipeline) throws Exception{
 
         Annotation doc = new Annotation(text);
         pipeline.annotate(doc);
@@ -279,7 +285,7 @@ public class BookAnalyzerHub {
 
     }
 
-    public static String[] ApplyHobbsAlgorithm(String text, StanfordCoreNLP pipeline){
+    public static String[] ApplyHobbsAlgorithm(String text, StanfordCoreNLP pipeline) throws Exception{
         Tree tree;
         String treeString, sentenceTreeString  = "";
         AnnotatedText aText;
@@ -389,7 +395,11 @@ public class BookAnalyzerHub {
         System.out.println(paragraphs.length);
         for(String par:paragraphs)
         {
-            resolveAnaphora(par, pipeline);
+            try {
+                resolveAnaphora(par, pipeline);
+            } catch (Exception e) {
+
+            }
         }
     }
 

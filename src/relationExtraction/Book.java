@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 class Book implements Serializable {
 
     private HashMap<String, HashMap<String, CharacterRelation>> characterRelations = new HashMap<>();
-
     private String title;
     private String author;
     private ArrayList<Sentence> sentences;
@@ -88,13 +87,12 @@ class Book implements Serializable {
 
     }
 
-    boolean containsCharacterRelation(String character1, String character2) {
+    private boolean containsCharacterRelation(String character1, String character2) {
         if (characterRelations.containsKey(character1)) {
             return characterRelations.get(character1).containsKey(character2);
         }
         return false;
     }
-
 
 
     void addSentences(String booksPath) {
@@ -178,7 +176,6 @@ class Book implements Serializable {
                     if (!relChar1.equals(relChar2) && this.containsCharacterRelation(relChar1, relChar2)) {
                         newCharacters.add(relChar1);
                         newCharacters.add(relChar2);
-                        System.out.println("I substituted '"+char1+"'--->'"+relChar1+"'      and      '"+char2+"'--->'"+relChar2+"'");
                     }
                 }
             }

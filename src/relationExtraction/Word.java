@@ -1,8 +1,6 @@
 package relationExtraction;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -30,31 +28,7 @@ public class Word implements Serializable {
         return ner;
     }
 
-    boolean isNotStopword(String word, HashSet<String> stopWordSet)
-    {
-        word = word.trim();
-        word = word.toLowerCase();
-        if(stopWordSet.contains(word))
-            return false;
-        else
-            return true;
-    }
-
-    boolean isNotPunctuation(String word)
-    {
-        word = word.trim();
-        if (Pattern.matches("\\p{Punct}", word))
-            return false;
-        else
-            return true;
-    }
-
-    boolean isNotNumber(String word)
-    {
-        word = word.trim();
-        if(Pattern.matches("\\d+", word))
-            return false;
-        else
-            return true;
-    }
+    boolean isStopword() {
+        return true;
+    } //placeholder for stopword flag
 }

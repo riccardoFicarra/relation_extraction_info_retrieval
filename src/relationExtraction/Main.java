@@ -105,25 +105,11 @@ public class Main {
 
             nFoldValidationSentences(maxFolds, books, nbm, labelType, stopWordSet);
 
-            }
-        } else {
-
-
-            //----------CLASSIFYING VIRGIN BOOK---------------------------
-            //Now we try to classify a virgin book
-            String bookPath = "./TrainingBooks/Ghosts.txt";
-            Book bookToAnalyze = new Book(bookPath, "---");
-            HashMap<String, HashMap<String, String>> classifiedCharacters;
-
-            bookToAnalyze.setSentences(BookAnalyzerHub.analyzeBook(bookPath));
-            if (nbm != null) {
-                classifiedCharacters = nbm.classifyBook(bookToAnalyze);
-                System.out.println(classifiedCharacters);
-            }
-
-
         }
+
     }
+
+
 
     private static void nFoldValidationSentences(int maxFolds, HashMap<String, Book> books, NaiveBayes nbm, String labelType,
                                         HashSet<String> stopWordSet) {
@@ -200,7 +186,7 @@ public class Main {
             HashMap<String, HashMap<String, Integer>> confusionMatrix = new HashMap<>();
 
             //compute confusion matrix
-            compareResultsCumulative(classified, confusionMatrix);
+            //compareResultsCumulative(classified, confusionMatrix);
 
         }
     }
@@ -215,84 +201,71 @@ public class Main {
              inner key: label2
              value = count;
              */
-            HashMap<String, Double> avgPrec = new HashMap<>();
-            HashMap<String, Double> avgRec = new HashMap<>();
-            HashMap<String, Double> avgFmeasure = new HashMap<>();
-            String total = "_total";
-            ArrayList<Book> trainingBooks = new ArrayList<>();
-            for (int fold = 0; fold < maxFolds; fold++) {
+        HashMap<String, Double> avgPrec = new HashMap<>();
+        HashMap<String, Double> avgRec = new HashMap<>();
+        HashMap<String, Double> avgFmeasure = new HashMap<>();
+        String total = "_total";
+        ArrayList<Book> trainingBooks = new ArrayList<>();
+        for (int fold = 0; fold < maxFolds; fold++) {
 
-                for (int split = 0; split < splits.size(); split++) {
-                    if (split == fold)
-                        //skip test set during training
-                        continue;
-                    trainingBooks.addAll(splits.get(split));
-                }
-                //Model building with only one part of set
-                nbm = new NaiveBayes(labelType);
-                nbm.buildModel(getHashMap(trainingBooks), stopWordSet);
-
-                HashMap<String, HashMap<String, Integer>> confusionMatrix = new HashMap<>();
-                for (Book book : splits.get(fold)) {
-                    HashMap<String, HashMap<String, String>> classified = nbm.classifyBook(book);
-                    //compute confusion matrix
-                    book.compareResultsCumulative(classified, confusionMatrix);
-                }
-                //confusion matrix is complete
-                for (String goldLabel : confusionMatrix.keySet()) {
-                    if (goldLabel.equals("NR") || goldLabel.equals(total)) continue;
-                    double precision = 0.0;
-                    double recall = 0.0;
-                    double fmeasure = 0.0;
-                    if (confusionMatrix.get(goldLabel).containsKey(goldLabel)) {
-                        precision = (double) confusionMatrix.get(goldLabel).get(goldLabel) //correctly classified
-                                / confusionMatrix.get(total).get(goldLabel);   //total classified with that label
-                        recall = (double) confusionMatrix.get(goldLabel).get(goldLabel) //correctly classified
-                                / confusionMatrix.get(goldLabel).get(total);   //total actually with that label
-                        fmeasure = 2 * precision * recall / (precision + recall);
-                        //System.out.println("Label\t" + goldLabel + " precision: " + precision + " recall :" +
-                        // recall + " F " +
-                        //        "measure: " + fmeasure);
-                    }
-                    if (!avgPrec.containsKey(goldLabel) || !avgRec.containsKey(goldLabel) || !avgFmeasure.containsKey(goldLabel)) {
-                        avgPrec.put(goldLabel, 0.0);
-                        avgRec.put(goldLabel, 0.0);
-                        avgFmeasure.put(goldLabel, 0.0);
-                    }
-                    avgPrec.put(goldLabel, avgPrec.get(goldLabel) + precision);
-                    avgRec.put(goldLabel, avgRec.get(goldLabel) + recall);
-                    avgFmeasure.put(goldLabel, avgFmeasure.get(goldLabel) + fmeasure);
-
-
-                }
-
-                System.out.println("Completed fold #" + (fold + 1));
+            for (int split = 0; split < splits.size(); split++) {
+                if (split == fold)
+                    //skip test set during training
+                    continue;
+                trainingBooks.addAll(splits.get(split));
             }
-            for (String label : avgPrec.keySet()) {
-                System.out.println("Label\t" + label + " precision: " + avgPrec.get(label) / maxFolds + " recall " +
-                        ":" + avgRec.get(label) / maxFolds +
-                        " F-measure: " + avgFmeasure.get(label) / maxFolds);
+            //Model building with only one part of set
+            nbm = new NaiveBayes(labelType);
+            nbm.buildModel(getHashMap(trainingBooks), stopWordSet);
+
+            HashMap<String, HashMap<String, Integer>> confusionMatrix = new HashMap<>();
+            for (Book book : splits.get(fold)) {
+                HashMap<String, HashMap<String, String>> classified = nbm.classifyBook(book);
+                //compute confusion matrix
+                book.compareResultsCumulative(classified, confusionMatrix);
+            }
+            //confusion matrix is complete
+            for (String goldLabel : confusionMatrix.keySet()) {
+                if (goldLabel.equals("NR") || goldLabel.equals(total)) continue;
+                double precision = 0.0;
+                double recall = 0.0;
+                double fmeasure = 0.0;
+                if (confusionMatrix.get(goldLabel).containsKey(goldLabel)) {
+                    precision = (double) confusionMatrix.get(goldLabel).get(goldLabel) //correctly classified
+                            / confusionMatrix.get(total).get(goldLabel);   //total classified with that label
+                    recall = (double) confusionMatrix.get(goldLabel).get(goldLabel) //correctly classified
+                            / confusionMatrix.get(goldLabel).get(total);   //total actually with that label
+                    fmeasure = 2 * precision * recall / (precision + recall);
+                    //System.out.println("Label\t" + goldLabel + " precision: " + precision + " recall :" +
+                    // recall + " F " +
+                    //        "measure: " + fmeasure);
+                }
+                if (!avgPrec.containsKey(goldLabel) || !avgRec.containsKey(goldLabel) || !avgFmeasure.containsKey(goldLabel)) {
+                    avgPrec.put(goldLabel, 0.0);
+                    avgRec.put(goldLabel, 0.0);
+                    avgFmeasure.put(goldLabel, 0.0);
+                }
+                avgPrec.put(goldLabel, avgPrec.get(goldLabel) + precision);
+                avgRec.put(goldLabel, avgRec.get(goldLabel) + recall);
+                avgFmeasure.put(goldLabel, avgFmeasure.get(goldLabel) + fmeasure);
+
+
             }
 
+            System.out.println("Completed fold #" + (fold + 1));
+        }
+        for (String label : avgPrec.keySet()) {
+            System.out.println("Label\t" + label + " precision: " + avgPrec.get(label) / maxFolds + " recall " +
+                    ":" + avgRec.get(label) / maxFolds +
+                    " F-measure: " + avgFmeasure.get(label) / maxFolds);
+        }
 
-        } else {
 
 
-            //----------CLASSIFYING VIRGIN BOOK---------------------------
-            //Now we try to classify a virgin book
-            String bookPath = "./TrainingBooks/Ghosts.txt";
-            Book bookToAnalyze = new Book(bookPath, "---");
-            HashMap<String, HashMap<String, String>> classifiedCharacters;
-
-            bookToAnalyze.setSentences(BookAnalyzerHub.analyzeBook(bookPath));
-            if (nbm != null) {
-                classifiedCharacters = nbm.classifyBook(bookToAnalyze);
-                System.out.println(classifiedCharacters);
-            }
 
 
         }
-    }
+
 
     private static void classifyUpdateConfusionMatrix(Book book,
                                                       HashMap<String, HashMap<String, Integer>> confusionMatrix,

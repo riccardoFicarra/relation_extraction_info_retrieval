@@ -35,7 +35,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class BookAnalyzerHub {
 
 
-    static ArrayList<Sentence> analyzeBook(String bookName)
+    static ArrayList<Sentence> analyzeBook(String bookName, int anaphora)
     {
         //Data structures
         ArrayList<Sentence> finalSentences = new ArrayList<>();
@@ -85,6 +85,7 @@ public class BookAnalyzerHub {
             /************************************************************************************************/
             /*             Coreference resolution with Hobbs Algorithm  --- The Gabri Way                   */
             /************************************************************************************************/
+
             //checking if current sentence contains pronouns
             if (containsPronouns(sentenceArrayList.get(i), pronouns)) {
                 if(sentenceArrayList.get(i).contains("Gutenberg")) {
@@ -96,7 +97,7 @@ public class BookAnalyzerHub {
 
             }
             // if previous sentence had people in it
-            if (personPresencePrev == true) {
+            if (personPresencePrev == true && anaphora != 0) {
                 // if previous sentence had people in it and if current has pronouns in it
                 if (pronounPresenceCurr) {
                     //current and previous sentences must be anaphora resolved
@@ -128,10 +129,16 @@ public class BookAnalyzerHub {
 
             // executing anaphora resolution
             if (sentencesForAnaphora != null) {
-                resultFromAnaphora = ApplyHobbsAlgorithm(sentencesForAnaphora, pipeline);
-                for(int j = 0; j < resultFromAnaphora.length; j++) {
-                    processedSentenceArrayList.add(i-1+j, resultFromAnaphora[j]);
+                switch anaphora{
+                    case 1:
+                        resultFromAnaphora = ApplyHobbsAlgorithm(sentencesForAnaphora, pipeline);
+                        for(int j = 0; j < resultFromAnaphora.length; j++) {
+                            processedSentenceArrayList.add(i-1+j, resultFromAnaphora[j]);
+                        }
+                        break;
+
                 }
+
             }
 
             if(i!=0)

@@ -108,8 +108,8 @@ class Book implements Serializable {
     }
 
 
-    void addSentences(String booksPath) {
-        ArrayList<Sentence> sentences = BookAnalyzerHub.analyzeBook(booksPath + this.getTitle() + ".txt");
+    void addSentences(String booksPath, int anaphora) {
+        ArrayList<Sentence> sentences = BookAnalyzerHub.analyzeBook(booksPath + this.getTitle() + ".txt", anaphora);
         try {
             recomputeCharacters(sentences);
             this.sentences = sentences.stream().filter(s -> s.getAppearingCharacters().size() >= 2).collect(Collectors.toCollection(ArrayList::new));

@@ -25,6 +25,8 @@ public class Main {
         String processedBooksPath = "processedBooks/";
         String bookOutFile = "booksJson";
         String bookInFile = "booksJson";
+        int anaphoraFlag;
+
         int nfile = 3;
         //PARSING FILES
         HashMap<String, Book> books = null;
@@ -33,6 +35,14 @@ public class Main {
             File[] listfiles = booksFile.listFiles();
             boolean bookExists = listfiles != null && listfiles.length > 0;
             String choice = "";
+
+            if(options.contains("a")) {
+                anaphoraFlag = 1;
+            }
+            else if(options.contains("h")) {
+                anaphoraFlag = 2;
+            }
+
             if (bookExists && !options.contains("f")) {
                 System.err.println("CAUTION: DO YOU WANT TO OVERWRITE THE FILE? y/n");
                 Scanner scanner = new Scanner(System.in);
@@ -46,7 +56,7 @@ public class Main {
                 //    ObjectIO.writeBookToFile(processedBooksPath,b);});
 
                 books.values().stream().limit(1).forEach(b -> {
-                    b.addSentences(booksPath);
+                    b.addSentences(booksPath, anaphoraFlag);
                     ObjectIO.writeBookToFile(processedBooksPath, b);
                 });
 

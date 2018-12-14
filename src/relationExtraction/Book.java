@@ -212,25 +212,7 @@ class Book implements Serializable {
 
     }
 
-    /*returns the confusion matrix of the book
-     * outer key: label1
-     * inner key: label2
-     * value: number of character pairs identified with label1 by the classifier that have label2 in the gold standard*/
-    HashMap<String, HashMap<String, Integer>> compareResults(HashMap<String, HashMap<String, String>> classified) {
-        HashMap<String, HashMap<String, Integer>> confusionMatrix = new HashMap<>();
-        for (String char1 : classified.keySet()) {
-            HashMap<String, String> char1Entry = classified.get(char1);
-            for (String char2 : char1Entry.keySet()) {
-                if (this.containsCharacterRelation(char1, char2)) {
-                    String goldLabel = this.getCharacterRelations(char1).get(char2).getAffinity();
-                    String predictedLabel = char1Entry.get(char2);
-                    addToConfusionMatrix(confusionMatrix, goldLabel, predictedLabel);
-                }
-            }
-        }
-        return confusionMatrix;
 
-    }
 
     /*
     outer key: goldLabel

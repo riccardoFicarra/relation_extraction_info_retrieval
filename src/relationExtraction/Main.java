@@ -66,7 +66,7 @@ public class Main {
                 System.out.println(b.getTitle());
                 ObjectIO.writeBookToFile(processedBooksPath,b);});*/
             for (Book book : books.values()) {
-                if (!listfiles.contains(book.getTitle() + ".json")) {
+                if (!listfiles.contains(book.getTitle() + ".json") || options.contains("f")) {
                     book.addSentences(booksPath, anaphora);
                     if (book.getSentences() != null) {
                         ObjectIO.writeBookToFile(processedBooksPath, book);

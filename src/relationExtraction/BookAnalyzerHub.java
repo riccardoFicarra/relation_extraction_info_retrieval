@@ -19,6 +19,7 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -32,7 +33,7 @@ import java.util.stream.Stream;
 public class BookAnalyzerHub {
 
 
-    static ArrayList<Sentence> analyzeBook(String bookName, int anaphora)
+    static ArrayList<Sentence> analyzeBook(String bookName, int anaphora) throws FileNotFoundException
     {
         //Data structures
         ArrayList<Sentence> finalSentences = new ArrayList<>();

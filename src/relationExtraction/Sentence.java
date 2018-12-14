@@ -88,7 +88,7 @@ public class Sentence implements Serializable {
             catch(Exception e)
             {
                 //In case something goes wrong, just set the POS and NER fields to empty
-                System.out.println("Error in sentence Parsing!");
+                //System.out.println("Error in sentence Parsing!");
                 wordList.add(new Word(wordArray[i], "", ""));
             }
         }

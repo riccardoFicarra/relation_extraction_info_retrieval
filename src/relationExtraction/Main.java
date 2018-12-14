@@ -111,7 +111,9 @@ public class Main {
              inner key: label2
              value = count;
              */
-            HashMap<String, HashMap<String, Integer>> confusionMatrix = new HashMap<>();
+            HashMap<String, Double> avgPrec = new HashMap<>();
+            HashMap<String, Double> avgRec = new HashMap<>();
+            HashMap<String, Double> avgFmeasure = new HashMap<>();
             String total = "_total";
             ArrayList<Book> trainingBooks = new ArrayList<>();
             for (int fold = 0; fold < maxFolds; fold++) {
@@ -126,32 +128,48 @@ public class Main {
                 nbm = new NaiveBayes(labelType);
                 nbm.buildModel(getHashMap(trainingBooks), stopWordSet);
 
-
+                HashMap<String, HashMap<String, Integer>> confusionMatrix = new HashMap<>();
                 for (Book book : splits.get(fold)) {
                         HashMap<String, HashMap<String, String>> classified = nbm.classifyBook(book);
                         //compute confusion matrix
                         book.compareResultsCumulative(classified, confusionMatrix);
                     }
+                //confusion matrix is complete
+                for (String goldLabel : confusionMatrix.keySet()) {
+                    if (goldLabel.equals("NR") || goldLabel.equals(total)) continue;
+                    double precision = 0.0;
+                    double recall = 0.0;
+                    double fmeasure = 0.0;
+                    if (confusionMatrix.get(goldLabel).containsKey(goldLabel)) {
+                        precision = (double) confusionMatrix.get(goldLabel).get(goldLabel) //correctly classified
+                                / confusionMatrix.get(total).get(goldLabel);   //total classified with that label
+                        recall = (double) confusionMatrix.get(goldLabel).get(goldLabel) //correctly classified
+                                / confusionMatrix.get(goldLabel).get(total);   //total actually with that label
+                        fmeasure = 2 * precision * recall / (precision + recall);
+                        //System.out.println("Label\t" + goldLabel + " precision: " + precision + " recall :" +
+                        // recall + " F " +
+                        //        "measure: " + fmeasure);
+                    }
+                    if (!avgPrec.containsKey(goldLabel) || !avgRec.containsKey(goldLabel) || !avgFmeasure.containsKey(goldLabel)) {
+                        avgPrec.put(goldLabel, 0.0);
+                        avgRec.put(goldLabel, 0.0);
+                        avgFmeasure.put(goldLabel, 0.0);
+                    }
+                    avgPrec.put(goldLabel, avgPrec.get(goldLabel) + precision);
+                    avgRec.put(goldLabel, avgRec.get(goldLabel) + recall);
+                    avgFmeasure.put(goldLabel, avgFmeasure.get(goldLabel) + fmeasure);
+
+
+                }
 
                 System.out.println("Completed fold #" + (fold + 1));
             }
-            //confusion matrix is complete
-            for (String goldLabel : confusionMatrix.keySet()) {
-                if (goldLabel.equals("NR") || goldLabel.equals(total)) continue;
-                if (confusionMatrix.get(goldLabel).containsKey(goldLabel)) {
-                    double precision = (double) confusionMatrix.get(goldLabel).get(goldLabel) //correctly classified
-                            / confusionMatrix.get(total).get(goldLabel);   //total classified with that label
-                    double recall = (double) confusionMatrix.get(goldLabel).get(goldLabel) //correctly classified
-                            / confusionMatrix.get(goldLabel).get(total);   //total actually with that label
-                    double fmeasure = 2 * precision * recall / (precision + recall);
-                    System.out.println("Label\t" + goldLabel + " precision: " + precision + " recall :" + recall + " F " +
-                            "measure: " + fmeasure);
-                } else {
-                    //in case no sentences have been labeled with a certain label
-                    System.out.println("Label\t" + goldLabel + " precision: 0 recall : 0 F" +
-                            " measure: 0");
-                }
+            for (String label : avgPrec.keySet()) {
+                System.out.println("Label\t" + label + " precision: " + avgPrec.get(label) / maxFolds + " recall " +
+                        ":" + avgRec.get(label) / maxFolds +
+                        " F-measure: " + avgFmeasure.get(label) / maxFolds);
             }
+
 
         } else {
 

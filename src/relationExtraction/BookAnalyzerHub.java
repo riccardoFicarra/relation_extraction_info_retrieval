@@ -22,7 +22,7 @@ import java.util.Properties;
 public class BookAnalyzerHub {
 
 
-    static ArrayList<Sentence> analyzeBook(String bookName)
+    static ArrayList<Sentence> analyzeBook(String bookName) throws OutOfMemoryError
     {
         //Data structures
         ArrayList<Sentence> finalSentences = new ArrayList<>();
@@ -96,11 +96,15 @@ public class BookAnalyzerHub {
                 }
             }
 
-
+            sentenceAsPOS = "";
             ///////////////////////////////////////////////////////////////////
             //Now that we have the final sentence, we store it in the correct structures...
             //POS Tagging (We already have NER)
-            sentenceAsPOS = POStagger.tagString(currentFinalSentence);
+            try {
+                sentenceAsPOS = POStagger.tagString(currentFinalSentence);
+            } catch (OutOfMemoryError e) {
+                System.out.println("Sentence skipped");
+            }
             //Saving into the onject
             Sentence s = new Sentence(sentenceArrayList.get(i), sentenceAsPOS, sentenceAsNER);
             if (s.getAppearingCharacters().size() >= 2)

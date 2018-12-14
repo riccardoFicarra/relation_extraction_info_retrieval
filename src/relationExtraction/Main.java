@@ -141,7 +141,7 @@ public class Main {
             for (Book book : splits.get(fold)) {
                 HashMap<String, HashMap<String, String>> classified = nbm.classifyBook(book);
                 //compute confusion matrix
-                book.compareResultsCumulative(classified, confusionMatrix);
+                book.compareResultsCumulative(classified, confusionMatrix, labelType);
             }
             //confusion matrix is complete
             for (String goldLabel : confusionMatrix.keySet()) {

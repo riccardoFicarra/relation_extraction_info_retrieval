@@ -45,6 +45,15 @@ public class CharacterRelation implements Serializable {
         return fineCategory;
     }
 
+    public String getRelation(NaiveBayes.RelationLabel labelType) {
+        if (labelType == NaiveBayes.RelationLabel.affinity)
+            return this.affinity;
+        else if (labelType == NaiveBayes.RelationLabel.coarse) {
+            return this.coarseCategory;
+        } else return this.fineCategory;
+    }
+
+
     public String getDetail() {
         return detail;
     }

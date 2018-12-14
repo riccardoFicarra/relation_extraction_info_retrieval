@@ -246,7 +246,6 @@ class NaiveBayes {
 
         for(String label : labelProbability.keySet())
         {
-            //why does it work with min and not with max, NANI
             if (labelProbability.get(label) > max || maxLabel.equals("NIENTE"))
             {
                 max = labelProbability.get(label);

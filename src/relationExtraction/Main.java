@@ -33,6 +33,8 @@ public class Main {
         //Initializing Stop Word set
         stopWordSet = OurUtils.prepareStopWordList("./stopwords.txt");
 
+        int anaphoraFlag = 0;
+
         //PARSING FILES
         HashMap<String, Book> books = null;
         if (options.contains("p")) {
@@ -40,7 +42,17 @@ public class Main {
             File booksFile = new File(processedBooksPath);
             HashSet<String> listfiles =
                     Arrays.stream(booksFile.listFiles()).map(File::getName).collect(Collectors.toCollection(HashSet::new));
-            /*String choice = "";
+
+
+            if(options.contains("a")) {
+                anaphoraFlag = 2;
+            }
+            else if(options.contains("h")) {
+                anaphoraFlag = 1;
+            }
+            final int anaphora = anaphoraFlag;
+
+                        /*String choice = "";
             if (bookExists && !options.contains("f")) {
                 System.err.println("CAUTION: DO YOU WANT TO OVERWRITE THE FILE? y/n");
                 Scanner scanner = new Scanner(System.in);
@@ -55,7 +67,7 @@ public class Main {
                 ObjectIO.writeBookToFile(processedBooksPath,b);});*/
             for (Book book : books.values()) {
                 if (!listfiles.contains(book.getTitle() + ".json")) {
-                    book.addSentences(booksPath);
+                    book.addSentences(booksPath, anaphora);
                     if (book.getSentences() != null) {
                         ObjectIO.writeBookToFile(processedBooksPath, book);
                     } else {
@@ -180,12 +192,7 @@ public class Main {
                     " F-measure: " + avgFmeasure.get(label) / maxFolds);
         }
 
-
-
-
-
-        }
-
+    }
 
 
     private static void printCharacters(HashMap<String, Book> books) {

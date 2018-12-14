@@ -11,9 +11,11 @@ public class Main {
     /**
      * @param args [0] -> path of character relations file
      *             [1] -> path of books folder
-     *             [2] -> options: p = parse, f = force overwrite, b = build Naive Bayes model with all books, l = load
-     *             Naive Bayes model from file
-     *             x -> do 10-fold validation
+     *             [2] -> options: p = parse missing books, f = force overwrite, b = build Naive Bayes model with all
+     *             books, l = load Naive Bayes model from file
+     *             x -> do n-fold validation
+     *             a -> use anaphora resolution with Stanford library (Caution: extremely slow)
+     *             h -> use anaphora resolution with Hobbs algorithm (Caution: slow)
      *             [3] [only with b, x or l option] label type to use in classifier. {affinity, coarse, fine}
      *             [4] [only with x] number of folds for n-fold validation
      */
@@ -31,7 +33,7 @@ public class Main {
         int maxFolds = args.length >= 5 ? Integer.parseInt(args[4]) : 0;
 
         //Initializing Stop Word set
-        stopWordSet = OurUtils.prepareStopWordList("./stopwords.txt");
+        stopWordSet = OurUtils.prepareStopWordList("stopwords.txt");
 
         int anaphoraFlag = 0;
 

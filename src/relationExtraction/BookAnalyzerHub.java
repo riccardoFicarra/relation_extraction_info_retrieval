@@ -114,6 +114,8 @@ public class BookAnalyzerHub {
             }
             else {
                 done = false;
+                sentencesForAnaphora = null;
+
                 if(i != 0) {
                     processedSentenceArrayList.add(i - 1, sentenceArrayList.get(i - 1));
                 }
@@ -169,6 +171,7 @@ public class BookAnalyzerHub {
                 ///////////////////////////////////////////////////////////////////
                 //Now that we have the final sentence, we store it in the correct structures...
                 //Getting NER resolution (Person, Organization, Location)
+                sentenceAsPOS = "";
                 sentenceAsNER = NERclassifier.classifyToString(processedSentenceArrayList.get(i - 1));
                 //POS Tagging (We already have NER)
                 try {
@@ -177,7 +180,7 @@ public class BookAnalyzerHub {
                     System.out.println("Sentence Skipped");
                 }
                 //Saving into the onject
-                sentenceAsPOS = "";
+
                 Sentence s = new Sentence(sentenceArrayList.get(i - 1), sentenceAsPOS, sentenceAsNER);
                 if (s.getAppearingCharacters().size() >= 2)
                     finalSentences.add(s);
@@ -217,7 +220,7 @@ public class BookAnalyzerHub {
 
 
     private static String resolveAnaphora(String text, StanfordCoreNLP pipeline) throws Exception{
-
+        //System.out.println("new sentence");
         Annotation doc = new Annotation(text);
         pipeline.annotate(doc);
 

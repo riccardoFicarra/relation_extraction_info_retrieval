@@ -93,4 +93,13 @@ public class Sentence implements Serializable {
             }
         }
     }
+
+    //This function checks if the sentence contains a specific word
+    public boolean containsWord(String word) {
+        for (Word w : wordList) {
+            if (w.getText().trim().equals(word.trim()))
+                return true;
+        }
+        return false;
+    }
 }

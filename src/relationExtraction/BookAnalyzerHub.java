@@ -176,6 +176,7 @@ public class BookAnalyzerHub {
                     System.out.println("Sentence Skipped");
                 }
                 //Saving into the onject
+                sentenceAsPOS = "";
                 Sentence s = new Sentence(sentenceArrayList.get(i - 1), sentenceAsPOS, sentenceAsNER);
                 if (s.getAppearingCharacters().size() >= 2)
                     finalSentences.add(s);
@@ -184,14 +185,15 @@ public class BookAnalyzerHub {
 
         if(processedSentenceArrayList.size() != numSentences) {
             //last sentence must be added
+            Sentence s = null;
             try {
-                Sentence s = new Sentence(sentenceArrayList.get(i - 1),
+                s = new Sentence(sentenceArrayList.get(i - 1),
                         POStagger.tagString(sentenceArrayList.get(i - 1)),
                         NERclassifier.classifyToString(sentenceArrayList.get(i - 1)));
             } catch(OutOfMemoryError e) {
                 System.out.println("Sentence skipped");
             }
-            if (s.getAppearingCharacters().size() >= 2)
+            if (s != null && s.getAppearingCharacters().size() >= 2)
                 finalSentences.add(s);
         }
 
@@ -332,7 +334,7 @@ public class BookAnalyzerHub {
         }
 
         if(text.contains("When we came back to work ")) {
-            System.out.println("");
+            System.out.println();
         }
 
         // going through the reference found in order

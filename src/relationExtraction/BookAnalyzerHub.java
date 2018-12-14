@@ -1,5 +1,8 @@
 package relationExtraction;
 
+import com.pengyifan.nlp.process.anaphoraresolution.AnaphoraResolver;
+import com.pengyifan.nlp.process.anaphoraresolution.AnnotatedText;
+import com.pengyifan.nlp.process.anaphoraresolution.CorreferencialPair;
 import edu.stanford.nlp.coref.CorefCoreAnnotations;
 import edu.stanford.nlp.coref.data.CorefChain;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
@@ -7,16 +10,26 @@ import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.HasWord;
+import edu.stanford.nlp.ling.SentenceUtils;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
+import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import javax.sound.midi.SysexMessage;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 public class BookAnalyzerHub {
@@ -26,26 +39,31 @@ public class BookAnalyzerHub {
     {
         //Data structures
         ArrayList<Sentence> finalSentences = new ArrayList<>();
+        ArrayList<String> sentenceArrayList;
+        ArrayList<String> processedSentenceArrayList;
         int numSentences = 0;
         String sentenceAsString, sentenceAsPOS, sentenceAsNER;
         DocumentPreprocessor dp = new DocumentPreprocessor(bookName);
         Properties props = new Properties();
-        props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+        Boolean personPresencePrev = false;     //flag that is true if previous sentence contains NER tagged people
+        Boolean pronounPresencePrev = false;    //flag that is true if previous sentence contains NER pronouns
+        Boolean pronounPresenceCurr = false;    //flag that is true if current sentence contains NER pronouns
+        Boolean done = false;   //flag that is true if current sentence have been resolved, so next iteration it won't again
+        String sentencesForAnaphora = null;   // stores the sentences to be Anaphora resolved at current iteration
+        HashSet<String> pronouns = readPronouns("./pronouns.txt");
+        String[] resultFromAnaphora;
+
+        props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         System.out.println("Analyzing book " + bookName);
-
-
-        //String text = new String(Files.readAllBytes(Paths.get("./input.txt")), StandardCharsets.UTF_8);
-        //resolveAnaphora(text, pipeline);
-        //splittingTest(text, pipeline);
-
 
         // Initialize the POS tagger and the NER classifier
         MaxentTagger POStagger = new MaxentTagger("./english-bidirectional-distsim.tagger");
         AbstractSequenceClassifier NERclassifier = CRFClassifier.getClassifierNoExceptions("./english.all.3class.distsim.crf.ser.gz");
 
         //Create arrayList of sentences
-        ArrayList<String> sentenceArrayList = new ArrayList<>();
+        sentenceArrayList = new ArrayList<>();
+        processedSentenceArrayList = new ArrayList<>();
         //For each sentence of the book...
         for (List<HasWord> sentenceAsList : dp)
         {
@@ -56,58 +74,106 @@ public class BookAnalyzerHub {
         }
         numSentences = sentenceArrayList.size();
 
-
-
         //Now we analyze 2 sentences at a time in order to improve anaphora resolution when necessary
-        boolean toResolve = false;
-        for(int i=0; i<numSentences; i++)
-        {
-            String currentFinalSentence;
+        int i;
+        for(i=0; i<numSentences; i++) {
 
             //Getting NER resolution (Person, Organization, Location)
             sentenceAsNER = NERclassifier.classifyToString(sentenceArrayList.get(i));
             //If the flag is set, then we need to resolve anaphora for this sentence
-            currentFinalSentence = sentenceArrayList.get(i);
-            /*if(toResolve==true)
-            {
-                toResolve = false;
-                String tmp = sentenceArrayList.get(i-1) + " " + sentenceArrayList.get(i);
-                String resolved = resolveAnaphora(tmp, pipeline);
-                Reader reader = new StringReader(resolved);
-                dp = new DocumentPreprocessor(reader);
-                List<String> sentenceList = new ArrayList<String>();
-                for (List<HasWord> sentence : dp)
-                {
-                    String sentenceString = SentenceUtils.listToString(sentence);
-                    sentenceList.add(sentenceString);
+
+            /************************************************************************************************/
+            /*             Coreference resolution with Hobbs Algorithm  --- The Gabri Way                   */
+            /************************************************************************************************/
+            //checking if current sentence contains pronouns
+            if (containsPronouns(sentenceArrayList.get(i), pronouns)) {
+                if(sentenceArrayList.get(i).contains("Gutenberg")) {
+                    pronounPresenceCurr = false;
                 }
-                if(sentenceList.size()>=2)
-                    currentFinalSentence = sentenceList.get(1);
+                else {
+                    pronounPresenceCurr = true;
+                }
 
-            }*/
-            //currentFinalSentence = resolveAnaphora(sentenceArrayList.get(i), pipeline);
+            }
+            // if previous sentence had people in it
+            if (personPresencePrev == true) {
+                // if previous sentence had people in it and if current has pronouns in it
+                if (pronounPresenceCurr) {
+                    //current and previous sentences must be anaphora resolved
+                    sentencesForAnaphora = sentenceArrayList.get(i - 1) + " " + sentenceArrayList.get(i);
+                    done = true;
+                } else {
 
-            //If this is not the first sentence, check the NON-RESOLVED version of the phrase for if we need to resolve anaphora in the following phrase
-            if(i!=0)
-            {
-                if(sentenceAsNER.contains("PERSON"))
-                {
-                    toResolve = true;
+                    // if previous sentence has both people and pronouns but hasn't been solved yet and current
+                    // has no pronouns
+                    if (pronounPresencePrev && !done) {
+                        //Only previous sentences must be anphora resolved
+                        sentencesForAnaphora = sentenceArrayList.get(i - 1);
+                        done = false;
+                    }
+                    // if previous sentence has people and no pronouns and current has no pronouns
+                    else {
+                        //nothing to be solved
+                        sentencesForAnaphora = null;
+                        done = false;
+                    }
+                }
+            }
+            else {
+                done = false;
+                if(i != 0) {
+                    processedSentenceArrayList.add(i - 1, sentenceArrayList.get(i - 1));
                 }
             }
 
+            // executing anaphora resolution
+            if (sentencesForAnaphora != null) {
+                resultFromAnaphora = ApplyHobbsAlgorithm(sentencesForAnaphora, pipeline);
+                for(int j = 0; j < resultFromAnaphora.length; j++) {
+                    processedSentenceArrayList.add(i-1+j, resultFromAnaphora[j]);
+                }
+            }
 
-            ///////////////////////////////////////////////////////////////////
-            //Now that we have the final sentence, we store it in the correct structures...
-            //POS Tagging (We already have NER)
-            sentenceAsPOS = POStagger.tagString(currentFinalSentence);
-            //Saving into the onject
-            Sentence s = new Sentence(sentenceArrayList.get(i), sentenceAsPOS, sentenceAsNER);
+            if(i!=0)
+            {
+                //checking if current phrase contains people
+                if(sentenceAsNER.contains("PERSON"))
+                {
+                    if(sentenceArrayList.get(i).contains("Gutenberg")) {
+                        personPresencePrev = false;
+                    }
+                    else {
+                        // this means that next sentence should be processed by anaphora resolver if contains pronouns
+                        personPresencePrev = true;
+                    }
+                }
+                // updating previous sentence pronoun presence flag
+                pronounPresencePrev = pronounPresenceCurr;
+            }
+
+            if(i != 0) {
+                ///////////////////////////////////////////////////////////////////
+                //Now that we have the final sentence, we store it in the correct structures...
+                //Getting NER resolution (Person, Organization, Location)
+                sentenceAsNER = NERclassifier.classifyToString(processedSentenceArrayList.get(i - 1));
+                //POS Tagging (We already have NER)
+                sentenceAsPOS = POStagger.tagString(processedSentenceArrayList.get(i - 1));
+                //Saving into the onject
+                Sentence s = new Sentence(sentenceArrayList.get(i - 1), sentenceAsPOS, sentenceAsNER);
+                if (s.getAppearingCharacters().size() >= 2)
+                    finalSentences.add(s);
+            }
+        }
+
+        if(processedSentenceArrayList.size() != numSentences) {
+            //last sentence must be added
+            Sentence s = new Sentence(sentenceArrayList.get(i-1),
+                    POStagger.tagString(sentenceArrayList.get(i-1)),
+                    NERclassifier.classifyToString(sentenceArrayList.get(i-1)));
             if (s.getAppearingCharacters().size() >= 2)
                 finalSentences.add(s);
-
-
         }
+
         return finalSentences;
     }
 
@@ -183,8 +249,6 @@ public class BookAnalyzerHub {
                         //System.out.println("token.word() : "+token.word());
                     }
 
-
-
                     //System.out.println("converting " + token.word() + " to " + newwords);
                 }
 
@@ -208,6 +272,109 @@ public class BookAnalyzerHub {
 
     }
 
+    public static String[] ApplyHobbsAlgorithm(String text, StanfordCoreNLP pipeline){
+        Tree tree;
+        String treeString, sentenceTreeString  = "";
+        AnnotatedText aText;
+        AnaphoraResolver u = new AnaphoraResolver();
+        List<CorreferencialPair> vet;
+        int refereeIndex, refererIndex;
+        String[] result;
+
+        System.out.println(text);
+
+        Annotation doc = new Annotation(text);
+        pipeline.annotate(doc);
+
+        List<CoreMap> sentences = doc.get(CoreAnnotations.SentencesAnnotation.class);
+
+        // merging the parse tree of the sentences together
+        treeString = "(S1";
+        for(CoreMap sentence: sentences) {
+            // this is the parse tree of the current sentence
+            tree = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+            sentenceTreeString = tree.toString();
+            sentenceTreeString = sentenceTreeString.substring(0, sentenceTreeString.length()-1);
+            treeString = treeString + " " + sentenceTreeString.replaceAll("\\([\\s]*ROOT", "");
+        }
+        treeString = treeString + ")";
+
+        // getting the substitution to be executed
+        aText = new AnnotatedText(treeString);
+        vet = u.resolverV1(aText.getNPList(), aText.getPRPList());
+
+        // converting the sentences in array of strings
+        // converting the array of strings in a ArrayList of ArrayList of single words
+        ArrayList<ArrayList<String>> elaboration = new ArrayList<>();
+        for(String element: sentences.stream().map(CoreMap::toString).collect(Collectors.toList())) {
+            elaboration.add((ArrayList<String>)Arrays.stream(element.split(" ")).collect(Collectors.toList()));
+        }
+
+        if(text.contains("When we came back to work ")) {
+            System.out.println("");
+        }
+
+        // going through the reference found in order
+        for (int i = 0; i < vet.size(); i ++) {
+
+            System.out.println(vet.get(i).toString());
+
+            //getting the indices referred to the unique big sentence
+            if((vet.get(i).getReferee() != null) && (vet.get(i).getReferer() != null)) {
+                refereeIndex = vet.get(i).getReferee().getWordIndex();
+                refererIndex = vet.get(i).getReferer().getWordIndex();
+
+                //defining to which original sentence the words belong
+                // and computing the real indices
+                int refereeSentence = 0;
+                int refererSentence = 0;
+                int tot = 0;
+                while(refereeIndex >= tot + elaboration.get(refereeSentence).size()) {
+                    tot += elaboration.get(refereeSentence).size();
+                    refereeSentence++;
+                }
+                refereeIndex -= tot;
+                tot  = 0;
+                while(refererIndex >= tot + elaboration.get(refererSentence).size()) {
+                    tot += elaboration.get(refererSentence).size();
+                    refererSentence++;
+                }
+                refererIndex -= tot;
+
+
+            /*
+                Temporary solution: since the substitution of a multiword element will change the index meaning,
+                the new position is searched by before and after for 3 position, looking for the word considered
+            */
+                //finally substituting referer with referee
+                for(int j = refererIndex - 3; j < refererIndex - 3 && j < elaboration.get(refererIndex).size(); j++) {
+                    if (j >= 0) {
+                        if (elaboration.get(refererSentence).get(j).equals(vet.get(i).getReferer().getWord().split(" ")[0])) {
+                            elaboration.get(refererSentence).remove(j);
+                            refererIndex = j;
+                        }
+                    }
+                }
+                for(int j = 0; j < vet.get(i).getReferee().getWord().split(" ").length; j++) {
+                    for(int k = refereeIndex - 3; k < refereeIndex - 3 && k < elaboration.get(refereeIndex).size(); j++) {
+                        if(k >= 0) {
+                            if(elaboration.get(refereeSentence).get(k+j).equals(vet.get(i).getReferee().getWord().split(" ")[j])) {
+                                elaboration.get(refererSentence).add(refererIndex + j, elaboration.get(refereeSentence).get(k + j));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        result = new  String[sentences.size()];
+        for(int i = 0; i < result.length; i++) {
+            result[i] = elaboration.get(i).stream().collect(Collectors.joining(" "));
+        }
+
+        return result;
+    }
+
 
     public static void splittingTest(String text, StanfordCoreNLP pipeline)
     {
@@ -219,4 +386,29 @@ public class BookAnalyzerHub {
         }
     }
 
+    // read a file and store each line a element of a Set [each line is supposed to be s single word pronoun]
+    public static HashSet<String> readPronouns(String filepath) {
+        //read file into stream, try-with-resources
+        HashSet<String> pronouns = new HashSet<>();
+        try (Stream<String> stream = Files.lines(Paths.get(filepath))) {
+            // adding to the hashset each pronoun read from the file
+            stream.map(s -> s.trim()).forEach(pronouns::add);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pronouns;
+    }
+
+    // this function return true if s contains at least one occurrence of the element of p [ p is supposed to store pronouns]
+    public static Boolean containsPronouns(String sentence, HashSet<String> p) {
+        String[] tokens = sentence.split("[\\s]+");
+
+        for(String s : tokens) {
+            if(p.contains(s)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

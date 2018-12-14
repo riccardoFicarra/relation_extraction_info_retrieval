@@ -196,8 +196,9 @@ class Book implements Serializable {
      * outer key: label1
      * inner key: label2
      * value: number of character pairs identified with label1 by the classifier that have label2 in the gold standard*/
-    void compareResultsCumulative(HashMap<String, HashMap<String, String>> classified, HashMap<String,
-            HashMap<String, Integer>> confusionMatrix) {
+    void compareResultsCumulative(HashMap<String, HashMap<String, String>> classified,
+                                  HashMap<String, HashMap<String, Integer>> confusionMatrix) {
+
         for (String char1 : classified.keySet()) {
             HashMap<String, String> char1Entry = classified.get(char1);
             for (String char2 : char1Entry.keySet()) {

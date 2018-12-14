@@ -186,7 +186,7 @@ public class Main {
             HashMap<String, HashMap<String, Integer>> confusionMatrix = new HashMap<>();
 
             //compute confusion matrix
-            //compareResultsCumulative(classified, confusionMatrix);
+            //compareResultsCumulativeSentences(classified, confusionMatrix);
 
         }
     }

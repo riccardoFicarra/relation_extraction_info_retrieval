@@ -1,3 +1,2 @@
-1. fix naive bayes probability computation
 2. write better way to match characters
 3. implement test and result accuracy computation

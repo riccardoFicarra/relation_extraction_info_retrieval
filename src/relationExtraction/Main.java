@@ -103,10 +103,114 @@ public class Main {
             System.out.println("Done");
         } else if (options.contains("x")) {
 
-            int skip = books.size() / maxFolds + 1;
-            ArrayList<List<Book>> splits = new ArrayList<>(maxFolds);
-            for (int fold = 0; fold < maxFolds; fold++)
-                splits.add(books.values().stream().skip(fold * skip).limit(skip).collect(Collectors.toList()));
+            nFoldValidationSentences(maxFolds, books, nbm, labelType, stopWordSet);
+
+            }
+        } else {
+
+
+            //----------CLASSIFYING VIRGIN BOOK---------------------------
+            //Now we try to classify a virgin book
+            String bookPath = "./TrainingBooks/Ghosts.txt";
+            Book bookToAnalyze = new Book(bookPath, "---");
+            HashMap<String, HashMap<String, String>> classifiedCharacters;
+
+            bookToAnalyze.setSentences(BookAnalyzerHub.analyzeBook(bookPath));
+            if (nbm != null) {
+                classifiedCharacters = nbm.classifyBook(bookToAnalyze);
+                System.out.println(classifiedCharacters);
+            }
+
+
+        }
+    }
+
+    private static void nFoldValidationSentences(int maxFolds, HashMap<String, Book> books, NaiveBayes nbm, String labelType,
+                                        HashSet<String> stopWordSet) {
+
+        HashMap<String, ArrayList<BookSentence>> sentencesByLabels = new HashMap<>();
+
+
+        // filling the hashmap of arraylists, each associated to a class value
+        // and containing the sentences labeled with it
+        for (Map.Entry<String, Book> entry : books.entrySet()) {
+            if (entry.getValue().getSentences() != null) {
+                entry.getValue().getSentences().stream().forEach(sentence -> {
+                    String r = entry.getValue().getRelationFromSentence(sentence, NaiveBayes.RelationLabel.valueOf(labelType));
+
+                    if (!sentencesByLabels.containsKey(r)) {
+                        sentencesByLabels.put(r, new ArrayList<>());
+                    }
+                    sentencesByLabels.get(r).add(new BookSentence(entry.getKey(), sentence));
+                });
+            }
+        }
+
+        // creating the shuffled indices for randomly selecting the element of the sets of the cross validation
+        ArrayList<ArrayList<Integer>> indices = new ArrayList<>();
+        // and storing also the size of the set size for each class stored into indices
+        ArrayList<Integer> setSizes = new ArrayList<>();
+        int i = 0;
+        for (ArrayList<BookSentence> list : sentencesByLabels.values()) {
+            setSizes.add(list.size() / maxFolds);
+            indices.add(i, new ArrayList<>());
+            int count = 0;
+            for (BookSentence s : list) {
+                indices.get(i).add(count);
+                count++;
+            }
+            Collections.shuffle(indices.get(i), new Random());
+            i++;
+        }
+
+
+        // flags representing the sentences used fot test
+        ArrayList<Boolean[]> flags = new ArrayList<>();
+        for(int j = 0; j < sentencesByLabels.size(); j++) {
+            flags.add(j, new Boolean[sentencesByLabels.get(j).size()]);
+            Arrays.fill(flags.get(j), Boolean.FALSE);
+        }
+
+        int[] test_start = new int[sentencesByLabels.size()];
+        int[] test_end = new int[sentencesByLabels.size()];
+
+        // for each fold iteration
+        for(int fold = 0; i < maxFolds; i++) {
+            //compute indices of test sentences
+            for(int j = 0; j < sentencesByLabels.size(); j++) {
+
+                Arrays.fill(flags.get(j), Boolean.FALSE);
+                test_start[j] = test_end[j];
+                test_end[j] = (fold+1)*setSizes.get(j);
+
+                //setting true the flags related to test sentences
+                for(int k =test_start[j]; k < test_end[j]; k++) {
+                    flags.get(j)[k] = Boolean.TRUE;
+                }
+            }
+
+            //Model building with only one part of set
+            nbm = new NaiveBayes(labelType);
+            nbm.buildModelSentences(sentencesByLabels, indices, flags, stopWordSet);
+
+            // classifying the test set
+            HashMap<String, HashMap<String, String>> classified = nbm.classifySentences(sentencesByLabels, indices, flags);
+
+            //creating confusion matrix
+            HashMap<String, HashMap<String, Integer>> confusionMatrix = new HashMap<>();
+
+            //compute confusion matrix
+            compareResultsCumulative(classified, confusionMatrix);
+
+        }
+    }
+
+    private static void nFoldValidation(int maxFolds, HashMap<String, Book> books, NaiveBayes nbm, String labelType,
+                                        HashSet<String> stopWordSet) {
+        int skip = books.size() / maxFolds + 1;
+        ArrayList<List<Book>> splits = new ArrayList<>(maxFolds);
+        for (int fold = 0; fold < maxFolds; fold++)
+            splits.add(books.values().stream().skip(fold * skip).limit(skip).collect(Collectors.toList()));
             /*outer key: label1
              inner key: label2
              value = count;

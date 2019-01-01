@@ -16,3 +16,9 @@ Performance of the algorithm was evaluated using n-Fold Cross validation. Result
 ## Documentation
 Detailed documentation about the agorithm can be found in the following paper:
 https://drive.google.com/file/d/1gzAz3IS8_ZmKVkvYRQAek1lBEz30DJFX/view?usp=sharing
+
+## Adopted libraries
+The following libraries are required in order to run the program:
+* Stanford Tokenizer: https://nlp.stanford.edu/software/tokenizer.shtml
+* Stanford NER: https://nlp.stanford.edu/software/CRF-NER.shtml
+* Stanford Coref Annotator: https://stanfordnlp.github.io/CoreNLP/coref.html
